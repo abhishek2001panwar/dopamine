@@ -8,13 +8,36 @@ export interface CartItem {
   image: string;
 }
 
+export interface Badge {
+  id?: string;
+  _id?: string;
+  name: string;                // Added name
+  title?: string;
+  description: string;
+  icon?: string;
+  rewardFakeBucks?: number;    // Added rewardFakeBucks
+  unlockedAt?: string;
+}
+
 interface AppStore {
   fakeBalance: number;
   streakCount: number;
   lastClaimedDate: string | null;
-  onboarded: boolean; // Add onboarded state
+  onboarded: boolean;
   cart: CartItem[];
-  setUserData: (data: { fakeBalance?: number; streakCount?: number; lastClaimedDate?: string | null; onboarded?: boolean; cart?: CartItem[] }) => void;
+
+  // Badge Notification State
+  activeNotificationBadge: Badge | null;
+  setActiveNotificationBadge: (badge: Badge | null) => void;
+  clearBadgeNotification: () => void;
+
+  setUserData: (data: { 
+    fakeBalance?: number; 
+    streakCount?: number; 
+    lastClaimedDate?: string | null; 
+    onboarded?: boolean; 
+    cart?: CartItem[] 
+  }) => void;
   setBalance: (amount: number) => void;
   setOnboarded: (status: boolean) => void;
   addToCart: (item: any) => void;
@@ -28,8 +51,15 @@ export const useAppStore = create<AppStore>()(
       fakeBalance: 10000,
       streakCount: 0,
       lastClaimedDate: null,
-      onboarded: false, // Default to false
+      onboarded: false,
       cart: [],
+
+      // Badge Notification Defaults
+      activeNotificationBadge: null,
+
+      // Badge Notification Actions
+      setActiveNotificationBadge: (badge) => set({ activeNotificationBadge: badge }),
+      clearBadgeNotification: () => set({ activeNotificationBadge: null }),
 
       setUserData: (data) =>
         set((state) => ({

@@ -46,9 +46,11 @@ export function BadgeUnlockToast() {
           </div>
           <h4 className="font-extrabold text-lg leading-tight">{activeNotificationBadge.name}</h4>
           <p className="text-xs text-zinc-300">{activeNotificationBadge.description}</p>
-          <div className="text-xs font-bold text-green-400 pt-1">
-            +${activeNotificationBadge.rewardFakeBucks.toLocaleString()} Bonus Fake Bucks!
-          </div>
+         {activeNotificationBadge.rewardFakeBucks && (
+  <div className="text-xs font-bold text-green-400 pt-1">
+    +${activeNotificationBadge.rewardFakeBucks.toLocaleString()} Bonus Fake Bucks!
+  </div>
+)}
         </div>
       </div>
     </div>
