@@ -65,18 +65,21 @@ export function OnboardingModal({ onComplete }: { onComplete: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white border border-purple-200 rounded-3xl max-w-lg w-full p-8 space-y-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 bg-[#1C1712]/60 backdrop-blur-md flex items-center justify-center p-4 font-sans selection:bg-[#C8A24F] selection:text-white">
+      <div className="bg-[#FAF7F2] border border-white/90 rounded-[44px] max-w-lg w-full p-8 sm:p-10 space-y-6 shadow-[0_30px_70px_rgba(0,0,0,0.2)] relative overflow-hidden animate-fadeIn">
+        {/* Ambient Background Gold Glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8A24F]/15 rounded-full blur-3xl pointer-events-none" />
+
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-black">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+        <div className="text-center space-y-2 relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white/80 border border-[#EAE2D5] text-[#9B7A2B] rounded-full text-xs font-mono font-bold uppercase tracking-widest shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-[#C8A24F]" />
             Clearance Protocol • Step {step} of 2
           </div>
-          <h2 className="text-3xl font-black text-gray-900">
+          <h2 className="text-3xl sm:text-4xl font-normal text-[#1C1712] m-0">
             {step === 1 ? 'Where Should We Ship Your $0 Clout?' : 'Pick Your Shopping Persona'}
           </h2>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">
+          <p className="font-mono text-xs text-[#75695C] max-w-sm mx-auto m-0">
             {step === 1
               ? 'Don’t worry, no physical box is coming. But our virtual delivery drones need a destination!'
               : 'Tell us how you plan on spending your unlimited virtual allowance.'}
@@ -85,33 +88,35 @@ export function OnboardingModal({ onComplete }: { onComplete: () => void }) {
 
         {/* Step 1: Creative Address Setup */}
         {step === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-5 relative z-10">
             <div>
-              <label className="block text-xs font-black text-gray-700 mb-1.5 uppercase tracking-wider">
+              <label className="block font-mono text-xs font-bold text-[#75695C] mb-2 uppercase tracking-widest">
                 Virtual Shipping HQ / Address
               </label>
               <div className="relative">
-                <MapPin className="w-5 h-5 text-purple-600 absolute left-3.5 top-3.5" />
+                <MapPin className="w-4 h-4 text-[#C8A24F] absolute left-4 top-4" />
                 <input
                   type="text"
                   placeholder="e.g. Penthouse 9, Cyberpunk Towers..."
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full pl-11 pr-4 py-3.5 bg-white border border-[#EAE2D5] rounded-2xl font-mono text-xs uppercase font-bold text-[#1C1712] placeholder:text-[#75695C]/50 focus:outline-none focus:border-[#C8A24F] transition-colors shadow-sm"
                 />
               </div>
             </div>
 
             {/* Funny Presets */}
-            <div className="space-y-1.5">
-              <p className="text-[11px] font-bold text-gray-400 uppercase">Or Pick a Classic Location:</p>
+            <div className="space-y-2">
+              <p className="font-mono text-[10px] font-bold text-[#9B7A2B] uppercase tracking-widest m-0">
+                Or Pick a Classic Location:
+              </p>
               <div className="flex flex-wrap gap-2">
                 {PRESET_ADDRESSES.map((preset) => (
                   <button
                     key={preset}
                     type="button"
                     onClick={() => setAddress(preset)}
-                    className="text-xs font-semibold px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg border border-purple-200 transition-all text-left"
+                    className="font-mono text-xs font-semibold px-3.5 py-1.5 bg-white/80 hover:bg-white text-[#1C1712] rounded-full border border-[#EAE2D5] hover:border-[#C8A24F] transition-all text-left shadow-sm"
                   >
                     📍 {preset}
                   </button>
@@ -121,7 +126,7 @@ export function OnboardingModal({ onComplete }: { onComplete: () => void }) {
 
             <button
               onClick={() => (address.trim() ? setStep(2) : alert('Enter an address first!'))}
-              className="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 mt-4"
+              className="w-full py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full flex items-center justify-center gap-2 shadow-lg shadow-[#C8A24F]/25 transition-all active:scale-95 mt-4"
             >
               Next Step <ArrowRight className="w-4 h-4" />
             </button>
@@ -130,16 +135,16 @@ export function OnboardingModal({ onComplete }: { onComplete: () => void }) {
 
         {/* Step 2: Shopping Vibe & Bonus Claim */}
         {step === 2 && (
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-5 relative z-10">
+            <div className="space-y-2.5">
               {SHOPPER_VIBES.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => setVibe(item.name)}
                   className={`p-4 border rounded-2xl cursor-pointer transition-all flex items-start gap-3 ${
                     vibe === item.name
-                      ? 'border-2 border-purple-600 bg-purple-50/50 ring-2 ring-purple-100'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      ? 'border-[#C8A24F] bg-white shadow-md shadow-[#C8A24F]/10 ring-1 ring-[#C8A24F]'
+                      : 'border-[#EAE2D5] hover:border-[#C8A24F]/50 bg-white/60'
                   }`}
                 >
                   <div className="pt-0.5">
@@ -147,29 +152,29 @@ export function OnboardingModal({ onComplete }: { onComplete: () => void }) {
                       type="radio"
                       checked={vibe === item.name}
                       onChange={() => setVibe(item.name)}
-                      className="accent-purple-600 w-4 h-4"
+                      className="accent-[#C8A24F] w-4 h-4 cursor-pointer"
                     />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 text-sm">{item.name}</h4>
-                    <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                    <h4 className="text-lg font-normal text-[#1C1712] m-0">{item.name}</h4>
+                    <p className="font-mono text-xs text-[#75695C] mt-0.5 m-0">{item.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Bonus Banner */}
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-bold flex items-center gap-2">
-              <Zap className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
+            <div className="p-3.5 bg-white/80 border border-[#C8A24F] rounded-2xl text-[#1C1712] font-mono text-xs font-bold flex items-center gap-2 shadow-sm">
+              <Zap className="w-4 h-4 text-[#C8A24F] fill-[#C8A24F] shrink-0" />
               <span>Includes +$5,000 Fake Bucks Instant Onboarding Bonus!</span>
             </div>
 
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-98"
+              className="w-full py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full flex items-center justify-center gap-2 shadow-lg shadow-[#C8A24F]/25 transition-all active:scale-95"
             >
-              <ShieldCheck className="w-5 h-5" />
+              <ShieldCheck className="w-4 h-4" />
               {loading ? 'Initializing Wallet...' : 'Claim $5K Bonus & Start Shopping!'}
             </button>
           </div>

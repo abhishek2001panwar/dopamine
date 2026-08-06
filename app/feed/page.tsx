@@ -9,7 +9,8 @@ import { useAppStore } from '@/src/lib/store';
 import { SpinWheelModal } from '../components/SpinWheelModal';
 import { OnboardingModal } from '../components/OnboardingModal';
 import Link from 'next/link';
-import { Plus, ShoppingBag, Lock, LogIn, Sparkles, ArrowUpRight } from 'lucide-react';
+import { Plus, ShoppingBag, Lock, LogIn, Sparkles, Heart, CheckCircle2, Loader2, Zap } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export default function FeedPage() {
   const router = useRouter();
@@ -18,10 +19,21 @@ export default function FeedPage() {
   const [drops, setDrops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+
+  // High-Dopamine Button States & Floating Particle Feedback
+  const [addingState, setAddingState] = useState<Record<string, 'idle' | 'loading' | 'added'>>({});
+  const [floatingParticles, setFloatingParticles] = useState<{ id: string; x: number; y: number; text: string }[]>([]);
 
   const { onboarded, setUserData, addToCart } = useAppStore();
 
-  // 1. Session Auth Check: Verify token validity immediately on page load
+  const toggleWishlist = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWishlist((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // 1. Session Auth Check
   useEffect(() => {
     fetch('/api/user/profile')
       .then((res) => {
@@ -65,27 +77,72 @@ export default function FeedPage() {
       .finally(() => setLoading(false));
   }, [isAuthenticated]);
 
+  // Handle High-Dopamine Animated Add-To-Cart Action
+  const handleAddToCart = (item: any, e: React.MouseEvent) => {
+    const productId = item._id;
+
+    // Prevent double clicking
+    if (addingState[productId] === 'loading' || addingState[productId] === 'added') return;
+
+    // Step 1: Set Loading State
+    setAddingState((prev) => ({ ...prev, [productId]: 'loading' }));
+
+    // Spawn Floating Price Particle
+    const rect = e.currentTarget.getBoundingClientRect();
+    const particleId = `${productId}-${Date.now()}`;
+    setFloatingParticles((prev) => [
+      ...prev,
+      { id: particleId, x: rect.left + rect.width / 2, y: rect.top, text: `+$${item.price?.toLocaleString()}` },
+    ]);
+
+    // Clean up particle after animation finishes
+    setTimeout(() => {
+      setFloatingParticles((prev) => prev.filter((p) => p.id !== particleId));
+    }, 1000);
+
+    // Step 2: Trigger Cart Add & Confetti Burst
+    setTimeout(() => {
+      addToCart(item);
+      setAddingState((prev) => ({ ...prev, [productId]: 'added' }));
+
+      // Mini Confetti burst from click coordinates
+      confetti({
+        particleCount: 25,
+        spread: 50,
+        origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+        colors: ['#C8A24F', '#9B7A2B', '#FFFFFF'],
+      });
+
+      // Step 3: Reset Button State back to Idle after 1.8 seconds
+      setTimeout(() => {
+        setAddingState((prev) => ({ ...prev, [productId]: 'idle' }));
+      }, 1800);
+    }, 450);
+  };
+
   // Loading state while checking authentication
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
+        <div className="w-9 h-9 border-2 border-[#C8A24F] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Unauthenticated State — Editorial Lock Screen
+  // Unauthenticated Lock Screen
   if (isAuthenticated === false) {
     return (
-      <div className="min-h-screen bg-white text-black font-sans flex flex-col items-center justify-center p-6 selection:bg-black selection:text-white">
-        <div className="max-w-md w-full bg-white border-2 border-black p-8 text-center space-y-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto">
-            <Lock className="w-8 h-8" />
+      <div className="min-h-screen bg-[#FAF7F2] text-[#1C1712] font-sans flex flex-col items-center justify-center p-6 selection:bg-[#C8A24F] selection:text-white">
+        <div className="max-w-md w-full bg-white/70 backdrop-blur-2xl border border-white/90 p-10 text-center space-y-8 rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.04)]">
+          <div className="w-16 h-16 bg-[#1C1712] text-[#F8F3EB] rounded-full flex items-center justify-center mx-auto shadow-md">
+            <Lock className="w-7 h-7 text-[#C8A24F]" />
           </div>
 
-          <div className="space-y-2">
-            <h1 className="text-3xl font-black font-serif uppercase tracking-tight">Access Restricted</h1>
-            <p className="text-xs font-mono text-neutral-600 uppercase tracking-widest">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-normal tracking-tight m-0 text-[#1C1712]">
+              Access Restricted
+            </h2>
+            <p className="font-mono text-xs text-[#75695C] uppercase tracking-widest leading-relaxed m-0">
               Catalog access requires an active authenticated session.
             </p>
           </div>
@@ -93,13 +150,13 @@ export default function FeedPage() {
           <div className="space-y-3 pt-2 font-mono text-xs font-bold uppercase">
             <Link
               href="/login"
-              className="w-full py-4 bg-black text-white flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors"
+              className="w-full py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white rounded-full flex items-center justify-center gap-2 transition-all shadow-md shadow-[#C8A24F]/20"
             >
               <LogIn className="w-4 h-4" /> Log In to Your Account
             </Link>
             <Link
               href="/signup"
-              className="w-full py-4 border-2 border-black text-black flex items-center justify-center hover:bg-neutral-100 transition-colors"
+              className="w-full py-4 bg-white hover:bg-[#FAF7F2] border border-[#EAE2D5] text-[#1C1712] rounded-full flex items-center justify-center transition-all shadow-sm"
             >
               Create Free Account
             </Link>
@@ -111,18 +168,30 @@ export default function FeedPage() {
 
   const handleClaimSuccess = (product: any) => {
     addToCart(product);
-    alert(`Secured ${product.title}! Added to your bag.`);
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-black font-sans selection:bg-black selection:text-white pb-20">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#1C1712] selection:bg-[#C8A24F] selection:text-white pb-24 antialiased overflow-x-hidden relative">
       <Navbar />
+
+      {/* Floating Price Particles Layer */}
+      <div className="fixed inset-0 pointer-events-none z-50">
+        {floatingParticles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute font-mono text-sm font-bold text-[#C8A24F] bg-[#1C1712] px-3 py-1 rounded-full border border-[#C8A24F] shadow-xl animate-floatUp"
+            style={{ left: particle.x, top: particle.y }}
+          >
+            {particle.text}
+          </div>
+        ))}
+      </div>
 
       {showOnboarding && !onboarded && (
         <OnboardingModal onComplete={() => setShowOnboarding(false)} />
       )}
 
-      <main className="max-w-7xl mx-auto p-6 space-y-12">
+      <main className="w-full px-6 md:px-16 pt-8 space-y-16">
         {/* Modals & Action Triggers */}
         <div className="space-y-4">
           <DailyRewardModal />
@@ -131,17 +200,17 @@ export default function FeedPage() {
 
         {/* Live Countdown Drops Section */}
         {drops.length > 0 && (
-          <section className="space-y-6">
-            <div className="flex items-center justify-between border-b-2 border-black pb-3">
+          <section className="space-y-8">
+            <div className="flex items-center justify-between border-b border-[#EAE2D5] pb-5">
               <div className="flex items-center gap-3">
-                <span className="p-1 bg-black text-white">
-                  <Sparkles className="w-5 h-5" />
+                <span className="p-2 bg-[#1C1712] text-white rounded-full shadow-sm">
+                  <Sparkles className="w-4 h-4 text-[#C8A24F]" />
                 </span>
-                <h2 className="text-2xl font-black font-serif uppercase tracking-tight">
+                <h2 className="text-3xl sm:text-4xl font-normal tracking-tight text-[#1C1712] m-0">
                   Limited Live Drops
                 </h2>
               </div>
-              <span className="font-mono text-xs font-bold uppercase bg-black text-white px-3 py-1">
+              <span className="font-mono text-xs font-bold uppercase bg-[#1C1712] text-white px-4 py-1.5 rounded-full tracking-widest shadow-sm">
                 {drops.length} ACTIVE
               </span>
             </div>
@@ -159,77 +228,122 @@ export default function FeedPage() {
         )}
 
         {/* Main Product Catalog */}
-        <section className="space-y-8">
-          <div className="flex items-center justify-between border-b-2 border-black pb-3">
-            <h2 className="text-2xl font-black font-serif uppercase tracking-tight">
-              Curated Catalog
-            </h2>
-            <span className="font-mono text-xs text-neutral-500 uppercase tracking-widest font-semibold">
+        <section className="space-y-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EAE2D5] pb-6">
+            <div>
+              <span className="font-mono text-xs uppercase tracking-widest text-[#9B7A2B]">
+                Curated Dossier
+              </span>
+              <h2 className="text-4xl sm:text-5xl font-normal text-[#1C1712] mt-1 m-0">
+                Curated Catalog
+              </h2>
+            </div>
+            <span className="font-mono text-xs text-[#75695C] uppercase tracking-widest font-semibold">
               Vol. 01 — Instant Acquisition
             </span>
           </div>
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((n) => (
+              {[1, 2, 3, 4, 5, 6].map((n) => (
                 <div
                   key={n}
-                  className="bg-white border-2 border-black h-96 animate-pulse shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] h-96 animate-pulse shadow-sm"
                 />
               ))}
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((item) => (
-                <div
-                  key={item._id}
-                  className="bg-white border-2 border-black overflow-hidden hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 group flex flex-col justify-between"
-                >
-                  <div>
-                    {/* Image Header */}
-                    <div className="h-72 overflow-hidden relative bg-neutral-100 border-b-2 border-black">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500  group-hover:grayscale-0"
-                      />
-                      {item.tag && (
-                        <span className="absolute top-4 left-4 bg-black text-white font-mono text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 border border-black">
-                          {item.tag}
-                        </span>
-                      )}
+              {products.map((item) => {
+                const isLiked = wishlist[item._id];
+                const buttonState = addingState[item._id] || 'idle';
+
+                return (
+                  <div
+                    key={item._id}
+                    className={`bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] overflow-hidden transition-all duration-500 hover:-translate-y-2 group flex flex-col justify-between ${
+                      buttonState === 'added'
+                        ? 'shadow-[0_0_30px_rgba(200,162,79,0.35)] ring-2 ring-[#C8A24F]'
+                        : 'shadow-[0_20px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(200,162,79,0.12)]'
+                    }`}
+                  >
+                    <div>
+                      {/* Image Container */}
+                      <div className="h-72 bg-[#F8F3EB] relative overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        {item.tag && (
+                          <span className="absolute top-4 left-4 bg-[#1C1712] text-white font-mono text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-widest">
+                            {item.tag}
+                          </span>
+                        )}
+
+                        {/* Wishlist Button */}
+                        <button
+                          onClick={(e) => toggleWishlist(item._id, e)}
+                          className="absolute top-4 right-4 p-3 rounded-full bg-white/80 backdrop-blur-md text-[#1C1712] hover:text-[#C8A24F] transition-colors shadow-sm"
+                        >
+                          <Heart className={`w-4 h-4 ${isLiked ? 'fill-[#C8A24F] text-[#C8A24F]' : ''}`} />
+                        </button>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="p-7 space-y-3">
+                        <h3 className="text-2xl font-normal text-[#1C1712] line-clamp-1 m-0">
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-[#75695C] line-clamp-2 font-normal leading-relaxed m-0">
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Card Body */}
-                    <div className="p-6 space-y-3">
-                      <h3 className="text-xl font-bold font-serif uppercase tracking-tight text-black line-clamp-1">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs text-neutral-600 line-clamp-2 font-normal leading-relaxed">
-                        {item.description}
-                      </p>
+                    {/* Card Footer with Micro-Interactive Button */}
+                    <div className="p-7 pt-3 flex items-center justify-between border-t border-[#EAE2D5] mt-4">
+                      <h4 className="text-2xl font-normal text-[#1C1712] m-0">
+                        ${item.price?.toLocaleString()}
+                      </h4>
+
+                      <button
+                        onClick={(e) => handleAddToCart(item, e)}
+                        disabled={buttonState === 'loading'}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-full font-mono text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md active:scale-95 ${
+                          buttonState === 'added'
+                            ? 'bg-[#1C1712] text-[#C8A24F] border border-[#C8A24F] shadow-lg shadow-[#C8A24F]/30 scale-105'
+                            : buttonState === 'loading'
+                            ? 'bg-[#B38C3B] text-white opacity-80 cursor-wait'
+                            : 'bg-[#C8A24F] hover:bg-[#B38C3B] text-white shadow-[#C8A24F]/20'
+                        }`}
+                      >
+                        {buttonState === 'loading' ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                            <span>Processing...</span>
+                          </>
+                        ) : buttonState === 'added' ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 text-[#C8A24F] animate-bounce" />
+                            <span>Secured to Bag!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4" />
+                            <span>Add to Bag</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
-
-                  {/* Card Footer */}
-                  <div className="p-6 pt-0 flex items-center justify-between border-t border-neutral-200 mt-4">
-                    <span className="font-mono text-2xl font-black text-black">
-                      ${item.price?.toLocaleString()}
-                    </span>
-                    <button
-                      onClick={() => addToCart(item)}
-                      className="flex items-center gap-2 bg-black hover:bg-neutral-800 text-white px-5 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all active:translate-y-0.5"
-                    >
-                      <Plus className="w-4 h-4" /> Add to Bag
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white border-2 border-dashed border-black space-y-3">
-              <ShoppingBag className="w-12 h-12 text-black mx-auto" />
-              <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-600">
+            <div className="text-center py-20 bg-white/60 backdrop-blur-2xl rounded-[36px] border border-white/80 shadow-sm space-y-3">
+              <ShoppingBag className="w-12 h-12 text-[#9B7A2B] mx-auto" />
+              <p className="font-mono text-xs font-bold uppercase tracking-widest text-[#75695C] m-0">
                 Catalog Archive Empty
               </p>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Trophy, Crown, Flame, Zap, ArrowUpRight, ShieldCheck, User } from 'lucide-react';
+import { Trophy, Crown, Flame, Zap, ArrowRight, ShieldCheck, User, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '../components/Navbar';
 
@@ -35,107 +35,109 @@ export default function LeaderboardPage() {
   const remainingRankings = leaderboard.slice(3);
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-black font-sans selection:bg-black selection:text-white pb-20">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#1C1712] selection:bg-[#C8A24F] selection:text-white pb-24 antialiased overflow-x-hidden">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto p-6 space-y-10">
-        {/* Editorial Header */}
-        <div className="border-b-2 border-black pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <span className="font-mono text-xs uppercase tracking-widest text-neutral-500 font-bold">
+      <main className="w-full px-6 md:px-16 pt-8 space-y-12 max-w-7xl mx-auto">
+        {/* Header Title */}
+        <div className="border-b border-[#EAE2D5] pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-1">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#9B7A2B]">
               Vol. 01 — Global Flex Standings
             </span>
-            <h1 className="text-4xl md:text-5xl font-black font-serif uppercase tracking-tight flex items-center gap-3 mt-1">
-              <Trophy className="w-9 h-9 text-black" /> High Roller Board
+            <h1 className="text-4xl sm:text-5xl font-normal text-[#1C1712] flex items-center gap-3 m-0">
+              <Trophy className="w-9 h-9 text-[#C8A24F]" /> High Roller Board
             </h1>
           </div>
-          <div className="font-mono text-xs font-bold uppercase bg-black text-white px-4 py-2 self-start md:self-auto border border-black">
+          <span className="font-mono text-xs font-bold uppercase bg-[#1C1712] text-white px-4 py-1.5 rounded-full tracking-widest shadow-sm self-start md:self-auto">
             LIVE RANKINGS • REFRESHED REAL-TIME
-          </div>
+          </span>
         </div>
 
         {loading ? (
-          <div className="py-24 text-center space-y-4">
-            <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="font-mono text-xs uppercase tracking-widest font-bold text-neutral-600">
+          <div className="py-32 text-center space-y-4">
+            <div className="w-10 h-10 border-2 border-[#C8A24F] border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="font-mono text-xs uppercase tracking-widest font-bold text-[#75695C] m-0">
               Calculating Total Virtual Capital Deployed...
             </p>
           </div>
         ) : (
           <>
-            {/* Podium Section: Top 3 Spenders */}
+            {/* Podium Section: Top 3 High Rollers */}
             {topThree.length > 0 && (
-              <section className="space-y-4">
-                <span className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest block">
+              <section className="space-y-6">
+                <span className="font-mono text-xs font-bold text-[#9B7A2B] uppercase tracking-widest block">
                   Top Capital Deployers
                 </span>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
                   {/* #2 Rank */}
                   {topThree[1] && (
-                    <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-4 order-2 md:order-1">
+                    <div className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] p-8 shadow-[0_15px_35px_rgba(0,0,0,0.03)] space-y-5 hover:shadow-[0_20px_50px_rgba(200,162,79,0.12)] transition-all duration-300 order-2 md:order-1">
                       <div className="flex justify-between items-start">
-                        <span className="font-mono text-2xl font-black px-3 py-1 bg-neutral-100 border border-black">
+                        <span className="font-mono text-xl font-bold px-4 py-1 rounded-full bg-[#FAF7F2] border border-[#EAE2D5] text-[#1C1712]">
                           #2
                         </span>
-                        <Crown className="w-6 h-6 text-neutral-400" />
+                        <Crown className="w-7 h-7 text-[#75695C]" />
                       </div>
-                      <div>
-                        <h3 className="font-serif font-bold text-xl uppercase tracking-tight line-clamp-1">
+                      <div className="space-y-1">
+                        <h3 className="text-2xl font-normal text-[#1C1712] line-clamp-1 m-0">
                           {topThree[1].name}
                         </h3>
-                        <p className="font-mono text-xs text-neutral-500 truncate">{topThree[1].email}</p>
+                        <p className="font-mono text-xs text-[#75695C] truncate m-0">{topThree[1].email}</p>
                       </div>
-                      <div className="border-t border-neutral-200 pt-3">
-                        <p className="font-mono text-[10px] uppercase text-neutral-400 font-bold">Total Deployed</p>
-                        <p className="font-mono text-xl font-black">${(topThree[1].totalSpent || 0).toLocaleString()}</p>
+                      <div className="border-t border-[#EAE2D5] pt-4">
+                        <span className="font-mono text-[10px] uppercase text-[#75695C] font-bold block">Total Deployed</span>
+                        <p className="font-mono text-2xl font-bold text-[#9B7A2B] m-0">${(topThree[1].totalSpent || 0).toLocaleString()}</p>
                       </div>
                     </div>
                   )}
 
-                  {/* #1 Rank (Featured Highlight) */}
+                  {/* #1 Rank (Featured Highlight Gold Glass) */}
                   {topThree[0] && (
-                    <div className="bg-black text-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-4 order-1 md:order-2 md:-translate-y-4">
-                      <div className="flex justify-between items-start">
-                        <span className="font-mono text-3xl font-black px-4 py-1 bg-white text-black border border-white">
+                    <div className="bg-[#1C1712] text-[#F8F3EB] border border-[#C8A24F]/40 rounded-[44px] p-10 shadow-[0_25px_60px_rgba(0,0,0,0.12)] space-y-6 order-1 md:order-2 md:-translate-y-4 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-[#C8A24F]/20 rounded-full blur-2xl pointer-events-none" />
+
+                      <div className="flex justify-between items-start z-10 relative">
+                        <span className="font-mono text-2xl font-bold px-4 py-1.5 rounded-full bg-[#C8A24F] text-white shadow-sm">
                           #1
                         </span>
-                        <Crown className="w-8 h-8 text-white fill-white" />
+                        <Crown className="w-9 h-9 text-[#C8A24F] fill-[#C8A24F]" />
                       </div>
-                      <div>
-                        <span className="font-mono text-[10px] uppercase font-bold text-neutral-400 tracking-widest">
+                      <div className="space-y-1 z-10 relative">
+                        <span className="font-mono text-[10px] uppercase font-bold text-[#C8A24F] tracking-widest block">
                           Undisputed High Roller
                         </span>
-                        <h3 className="font-serif font-black text-2xl uppercase tracking-tight line-clamp-1">
+                        <h3 className="text-3xl font-normal text-white line-clamp-1 m-0">
                           {topThree[0].name}
                         </h3>
-                        <p className="font-mono text-xs text-neutral-400 truncate">{topThree[0].email}</p>
+                        <p className="font-mono text-xs text-[#75695C] truncate m-0">{topThree[0].email}</p>
                       </div>
-                      <div className="border-t border-neutral-800 pt-3">
-                        <p className="font-mono text-[10px] uppercase text-neutral-400 font-bold">Peak Deployed Capital</p>
-                        <p className="font-mono text-2xl font-black">${(topThree[0].totalSpent || 0).toLocaleString()}</p>
+                      <div className="border-t border-[#75695C]/30 pt-4 z-10 relative">
+                        <span className="font-mono text-[10px] uppercase text-[#75695C] font-bold block">Peak Deployed Capital</span>
+                        <p className="font-mono text-3xl font-bold text-[#C8A24F] m-0">${(topThree[0].totalSpent || 0).toLocaleString()}</p>
                       </div>
                     </div>
                   )}
 
                   {/* #3 Rank */}
                   {topThree[2] && (
-                    <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-4 order-3">
+                    <div className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] p-8 shadow-[0_15px_35px_rgba(0,0,0,0.03)] space-y-5 hover:shadow-[0_20px_50px_rgba(200,162,79,0.12)] transition-all duration-300 order-3">
                       <div className="flex justify-between items-start">
-                        <span className="font-mono text-2xl font-black px-3 py-1 bg-neutral-100 border border-black">
+                        <span className="font-mono text-xl font-bold px-4 py-1 rounded-full bg-[#FAF7F2] border border-[#EAE2D5] text-[#1C1712]">
                           #3
                         </span>
-                        <Crown className="w-6 h-6 text-neutral-400" />
+                        <Crown className="w-7 h-7 text-[#75695C]" />
                       </div>
-                      <div>
-                        <h3 className="font-serif font-bold text-xl uppercase tracking-tight line-clamp-1">
+                      <div className="space-y-1">
+                        <h3 className="text-2xl font-normal text-[#1C1712] line-clamp-1 m-0">
                           {topThree[2].name}
                         </h3>
-                        <p className="font-mono text-xs text-neutral-500 truncate">{topThree[2].email}</p>
+                        <p className="font-mono text-xs text-[#75695C] truncate m-0">{topThree[2].email}</p>
                       </div>
-                      <div className="border-t border-neutral-200 pt-3">
-                        <p className="font-mono text-[10px] uppercase text-neutral-400 font-bold">Total Deployed</p>
-                        <p className="font-mono text-xl font-black">${(topThree[2].totalSpent || 0).toLocaleString()}</p>
+                      <div className="border-t border-[#EAE2D5] pt-4">
+                        <span className="font-mono text-[10px] uppercase text-[#75695C] font-bold block">Total Deployed</span>
+                        <p className="font-mono text-2xl font-bold text-[#9B7A2B] m-0">${(topThree[2].totalSpent || 0).toLocaleString()}</p>
                       </div>
                     </div>
                   )}
@@ -143,16 +145,16 @@ export default function LeaderboardPage() {
               </section>
             )}
 
-            {/* Remaining Global Rankings Table */}
-            <section className="space-y-4">
-              <span className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest block">
+            {/* Remaining Rankings Table */}
+            <section className="space-y-6">
+              <span className="font-mono text-xs font-bold text-[#9B7A2B] uppercase tracking-widest block">
                 Rankings #4 and Beyond
               </span>
 
               {remainingRankings.length > 0 ? (
-                <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] divide-y-2 divide-black">
+                <div className="bg-white/70 backdrop-blur-2xl border border-white/90 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.03)] overflow-hidden divide-y divide-[#EAE2D5]">
                   {/* Table Header */}
-                  <div className="grid grid-cols-12 p-4 font-mono text-xs font-bold uppercase tracking-wider bg-neutral-100 border-b-2 border-black text-neutral-600">
+                  <div className="grid grid-cols-12 p-6 font-mono text-xs font-bold uppercase tracking-widest bg-[#F8F3EB] text-[#75695C]">
                     <div className="col-span-2 md:col-span-1">Rank</div>
                     <div className="col-span-6 md:col-span-7">User / Alias</div>
                     <div className="col-span-4 md:col-span-4 text-right">Total Spent</div>
@@ -166,27 +168,27 @@ export default function LeaderboardPage() {
                     return (
                       <div
                         key={user._id || idx}
-                        className={`grid grid-cols-12 p-4 items-center transition-colors ${
-                          isCurrentUser ? 'bg-neutral-100 font-bold' : 'hover:bg-neutral-50'
+                        className={`grid grid-cols-12 p-6 items-center transition-colors ${
+                          isCurrentUser ? 'bg-[#FAF7F2] font-bold' : 'hover:bg-white/90'
                         }`}
                       >
-                        <div className="col-span-2 md:col-span-1 font-mono text-sm font-black">
+                        <div className="col-span-2 md:col-span-1 font-mono text-base font-bold text-[#1C1712]">
                           #{rank}
                         </div>
                         <div className="col-span-6 md:col-span-7 space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-serif font-bold text-base uppercase tracking-tight">
+                            <h4 className="text-xl font-normal text-[#1C1712] m-0">
                               {user.name || 'Anonymous Roller'}
-                            </span>
+                            </h4>
                             {isCurrentUser && (
-                              <span className="font-mono text-[9px] bg-black text-white px-2 py-0.5 font-bold uppercase">
+                              <span className="font-mono text-[9px] bg-[#C8A24F] text-white px-2.5 py-0.5 rounded-full font-bold uppercase">
                                 YOU
                               </span>
                             )}
                           </div>
-                          <p className="font-mono text-xs text-neutral-500 truncate">{user.email}</p>
+                          <p className="font-mono text-xs text-[#75695C] truncate m-0">{user.email}</p>
                         </div>
-                        <div className="col-span-4 md:col-span-4 text-right font-mono text-base font-black">
+                        <div className="col-span-4 md:col-span-4 text-right font-mono text-lg font-bold text-[#9B7A2B]">
                           ${(user.totalSpent || 0).toLocaleString()}
                         </div>
                       </div>
@@ -195,9 +197,9 @@ export default function LeaderboardPage() {
                 </div>
               ) : (
                 leaderboard.length <= 3 && (
-                  <div className="bg-white border-2 border-dashed border-black p-8 text-center space-y-2">
-                    <ShieldCheck className="w-8 h-8 text-black mx-auto" />
-                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-600">
+                  <div className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] p-12 text-center space-y-3 shadow-sm">
+                    <ShieldCheck className="w-10 h-10 text-[#C8A24F] mx-auto" />
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-[#75695C] m-0">
                       Top 3 currently command the global board.
                     </p>
                   </div>
@@ -207,19 +209,19 @@ export default function LeaderboardPage() {
           </>
         )}
 
-        {/* Call to Action Banner */}
-        <div className="bg-black text-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-center justify-between gap-6">
+        {/* CTA Banner */}
+        <div className="bg-white/70 backdrop-blur-2xl border border-white/90 rounded-[40px] p-10 md:p-12 shadow-[0_25px_60px_rgba(0,0,0,0.04)] flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center md:text-left">
-            <h3 className="font-serif text-2xl font-black uppercase tracking-tight">Climb the Standings</h3>
-            <p className="font-mono text-xs text-neutral-400 uppercase">
+            <h3 className="text-3xl font-normal text-[#1C1712] m-0">Climb the Standings</h3>
+            <p className="font-mono text-xs text-[#75695C] uppercase tracking-widest m-0">
               Deploy your virtual balance in the feed to boost your rank on the global board.
             </p>
           </div>
           <Link
             href="/feed"
-            className="px-6 py-3 bg-white text-black font-mono text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors inline-flex items-center gap-2 shrink-0"
+            className="px-8 py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full transition-all shadow-md shadow-[#C8A24F]/20 inline-flex items-center gap-2 shrink-0 active:scale-95"
           >
-            Start Shopping <ArrowUpRight className="w-4 h-4" />
+            Start Shopping <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </main>
