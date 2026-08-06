@@ -13,6 +13,7 @@ import {
   Menu, 
   X
 } from 'lucide-react';
+import { CartDrawer } from './CartDrawer';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -20,6 +21,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // App Store State
   const { fakeBalance, streakCount, cart } = useAppStore();
@@ -55,8 +57,6 @@ export function Navbar() {
 
   return (
     <>
-      
-
       {/* SINGLE STICKY WRAPPER PINNED TO VERY TOP */}
       <div className="sticky top-0 z-50 w-full font-sans-modern">
         {/* Top Utility Announcement Bar */}
@@ -142,11 +142,11 @@ export function Navbar() {
                 <Search className="w-4 h-4" />
               </button>
 
-              {/* Glass Icon: Shopping Cart */}
-              <Link
-                href="/cart"
+              {/* Glass Icon: Slide-Over Cart Drawer Trigger */}
+              <button
+                onClick={() => setIsCartOpen(true)}
                 className="relative p-2.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] hover:border-[#C8A24F] hover:text-[#C8A24F] hover:shadow-[0_4px_15px_rgba(200,162,79,0.2)] transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95"
-                aria-label="View Virtual Cart"
+                aria-label="View Quick Cart Drawer"
               >
                 <ShoppingBag className="w-4 h-4" />
                 {cartItemCount > 0 && (
@@ -154,7 +154,7 @@ export function Navbar() {
                     {cartItemCount}
                   </span>
                 )}
-              </Link>
+              </button>
 
               {/* Glass Icon: User Profile */}
               <Link
@@ -223,19 +223,24 @@ export function Navbar() {
                   </Link>
                 ))}
 
-                <Link
-                  href="/cart"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 border-b border-[#EAE2D5]/40 flex justify-between items-center text-[#1C1712]"
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsCartOpen(true);
+                  }}
+                  className="py-2 border-b border-[#EAE2D5]/40 flex justify-between items-center text-[#1C1712] w-full text-left"
                 >
-                  <span>Shopping Cart ({cartItemCount})</span>
+                  <span>Quick Bag ({cartItemCount})</span>
                   <ShoppingBag className="w-4 h-4 text-[#C8A24F]" />
-                </Link>
+                </button>
               </nav>
             </div>
           )}
         </header>
       </div>
+
+      {/* Global Slide-Over Quick Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }

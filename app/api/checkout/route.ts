@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/src/lib/db';
 import { User } from '@/src/models/User';
 import { Order } from '@/src/models/Order';
 import { evaluateAndGrantBadges } from '@/src/lib/achievements';
 import { Resend } from 'resend';
+import { getReceiptEmailHtml } from '@/src/lib/emailTemplates';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,7 +24,21 @@ export async function POST(req: Request) {
       );
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    // Verify JWT Token safely with fallback secret
+    const decoded = jwt.verify(
+      token, 
+      process.env.JWT_SECRET || 'fallback_secret'
+    ) as { id?: string; userId?: string; _id?: string };
+
+    // Flexible ID check to fix "User profile not found" errors
+    const userId = decoded.id || decoded.userId || decoded._id;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Token structure missing valid User ID.' },
+        { status: 401 }
+      );
+    }
 
     // 2. Parse request payload
     const body = await req.json();
@@ -38,29 +54,38 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
-    // 3. Find User in MongoDB using verified JWT id
-    const user = await User.findById(decoded.id);
+    // 3. Find User in MongoDB using safe ObjectId casting
+    const targetId = mongoose.Types.ObjectId.isValid(userId)
+      ? new mongoose.Types.ObjectId(userId)
+      : userId;
+
+    const user = await User.findById(targetId);
+
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: 'User not found in database.' }, { status: 404 });
     }
 
     // 4. Verify user balance
     if (user.fakeBalance < totalAmount) {
-      return NextResponse.json({ error: 'Insufficient Fake Bucks balance' }, { status: 400 });
+      return NextResponse.json({ error: 'Insufficient Fake Bucks balance.' }, { status: 400 });
     }
 
-    // 5. Create Complete Order Record (including address & card info)
+    // 5. Create Complete Order Record
+    const orderItems = items.map((item: any) => ({
+      _id: item._id,
+      title: item.title,
+      price: Number(item.price) || 0,
+      image: item.image,
+    }));
+
+    const finalAddress = deliveryAddress || user.deliveryAddress || "Mom's Basement, Room 2B";
+
     const order = await Order.create({
       userId: user._id,
       userEmail: user.email,
-      items: items.map((item: any) => ({
-        _id: item._id,
-        title: item.title,
-        price: Number(item.price) || 0,
-        image: item.image,
-      })),
+      items: orderItems,
       totalAmount,
-      deliveryAddress: deliveryAddress || user.deliveryAddress || "Mom's Basement, Room 2B",
+      deliveryAddress: finalAddress,
       paymentCard: paymentCard || 'Infinite Black Card',
       deliveryStatus: 'DELIVERED TO VAULT',
     });
@@ -85,14 +110,20 @@ export async function POST(req: Request) {
       console.warn('Badge evaluation error:', badgeErr);
     }
 
-    // 8. Safe Resend Email Dispatch
+    // 8. Editorial Luxury Resend Email Dispatch
     try {
       if (process.env.RESEND_API_KEY && user.email) {
         await resend.emails.send({
-          from: 'DopaCart <onboarding@resend.dev>',
+          from: 'DopaCart Vault <onboarding@resend.dev>', // Replace with your verified domain in production
           to: user.email,
-          subject: '✨ Order Confirmed! (No real package coming)',
-          html: `<p>You spent <strong>$${totalAmount.toLocaleString()} Fake Dollars</strong>!</p>`,
+          subject: `✨ Acquisition Dossier #${order._id.toString().substring(0, 8).toUpperCase()} Confirmed`,
+          html: getReceiptEmailHtml({
+            userName: user.name || 'High Roller',
+            orderId: order._id.toString(),
+            items: orderItems,
+            totalAmount,
+            deliveryAddress: finalAddress,
+          }),
         });
       }
     } catch (emailErr) {
