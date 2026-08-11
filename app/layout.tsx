@@ -57,6 +57,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: "#1C1712",
+  userScalable: false, // Prevents mobile browsers from auto-zooming inputs
 };
 export default function RootLayout({
   children,
