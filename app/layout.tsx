@@ -16,24 +16,47 @@ const playfair = Playfair_Display({
   variable: '--font-playfair'
 });
 export const metadata: Metadata = {
-  title: 'DopaCart® | Digital Luxury Vault',
-  description: 'Pure Digital Impulse. Zero Real Cash.',
+  title: "DopaCart — Luxury Vault",
+  description:
+    "Zero-Cost Digital Luxury Simulator & High-Fashion Vault",
+
+  applicationName: "DopaCart",
+
+  icons: {
+    icon: [
+      {
+        url: "/next.svg",
+        sizes: "192x192",
+        type: "image/svg",
+      },
+      {
+        url: "/icons/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+
+    apple: [
+      {
+        url: "/icons/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
+
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'DopaCart',
-  },
-  formatDetection: {
-    telephone: false,
+    title: "DopaCart",
+    statusBarStyle: "black-translucent",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#C8A24F',
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#1C1712",
 };
 export default function RootLayout({
   children,

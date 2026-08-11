@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+
+    <meta name="theme-color" content="#1C1712" />
+
+    <title>DopaCart — Offline</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #faf7f2;
+        color: #1c1712;
+
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+
+      .container {
+        max-width: 420px;
+      }
+
+      h1 {
+        font-size: 42px;
+        margin-bottom: 12px;
+      }
+
+      p {
+        opacity: 0.65;
+        line-height: 1.6;
+      }
+
+      button {
+        margin-top: 20px;
+        padding: 14px 22px;
+
+        border: 0;
+        border-radius: 999px;
+
+        background: #1c1712;
+        color: #fff;
+
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="container">
+      <h1>DopaCart</h1>
+
+      <p>
+        You're currently offline.
+        Reconnect to continue exploring the Luxury Vault.
+      </p>
+
+      <button onclick="location.reload()">
+        Try Again
+      </button>
+    </main>
+  </body>
+</html>

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { AppleScrollSection } from './components/AppleScrollSection';
+import InstallPWA from './components/InstallPWA';
 
 const categories = [
   { name: 'Sneakers & Kicks', count: 'Footwear Collection', icon: '👟', href: '/feed?category=Footwear' },
@@ -58,6 +59,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#231E18] selection:bg-[#C8A24F] selection:text-white antialiased overflow-x-hidden font-sans">
       <Navbar />
+       <InstallPWA />
 
       {/* Social Ticker */}
       <div className="w-full bg-white/50 border-b border-[#EAE2D5] py-3 overflow-hidden">
