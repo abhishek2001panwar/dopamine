@@ -6,16 +6,17 @@ export interface CartItem {
   title: string;
   price: number;
   image: string;
+  selectedSize?: string;
 }
 
 export interface Badge {
   id?: string;
   _id?: string;
-  name: string;                // Added name
+  name: string;
   title?: string;
   description: string;
   icon?: string;
-  rewardFakeBucks?: number;    // Added rewardFakeBucks
+  rewardFakeBucks?: number;
   unlockedAt?: string;
 }
 
@@ -43,19 +44,24 @@ interface AppStore {
   addToCart: (item: any) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+
+  // Added resetUser Action
+  resetUser: () => void;
 }
+
+const DEFAULT_STATE = {
+  fakeBalance: 10000,
+  streakCount: 0,
+  lastClaimedDate: null,
+  onboarded: false,
+  cart: [],
+  activeNotificationBadge: null,
+};
 
 export const useAppStore = create<AppStore>()(
   persist(
     (set, get) => ({
-      fakeBalance: 10000,
-      streakCount: 0,
-      lastClaimedDate: null,
-      onboarded: false,
-      cart: [],
-
-      // Badge Notification Defaults
-      activeNotificationBadge: null,
+      ...DEFAULT_STATE,
 
       // Badge Notification Actions
       setActiveNotificationBadge: (badge) => set({ activeNotificationBadge: badge }),
@@ -86,6 +92,15 @@ export const useAppStore = create<AppStore>()(
       },
 
       clearCart: () => set({ cart: [] }),
+
+      // Clears store data & local storage upon logout
+      resetUser: () => {
+        set(DEFAULT_STATE);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('dopacart_daily_claimed_date');
+          localStorage.removeItem('dopacart_daily_spin_date');
+        }
+      },
     }),
     {
       name: 'dopacart-store-storage',
