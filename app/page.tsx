@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
@@ -8,59 +8,18 @@ import {
   ArrowRight, 
   Heart, 
   Star, 
-  Search, 
-  ChevronRight, 
-  Flame 
+  ChevronRight 
 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { AppleScrollSection } from './components/AppleScrollSection';
 
 const categories = [
-  { name: 'Sneakers & Kicks', count: '2,340 Items', icon: '👟', href: '/feed?category=sneakers' },
-  { name: 'Luxury Apparel', count: '4,120 Items', icon: '🧥', href: '/feed?category=luxury' },
-  { name: 'Haute Horlogerie', count: '1,180 Items', icon: '⌚', href: '/feed?category=watches' },
-  { name: 'Cyber Tech & Gear', count: '890 Items', icon: '⚡', href: '/feed?category=tech' },
-  { name: 'Maison Beauty', count: '1,840 Items', icon: '✨', href: '/feed?category=beauty' },
-  { name: 'Hypercars & Exclusives', count: '140 Items', icon: '🏎️', href: '/feed?category=cars' },
-];
-
-const featuredProducts = [
-  {
-    id: '1',
-    title: 'Retro High OG "Chicago"',
-    brand: 'Jordan Brand',
-    price: 1250,
-    rating: 5,
-    tag: 'NEW ARRIVAL',
-    image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1000&q=80',
-  },
-  {
-    id: '2',
-    title: 'Onyx Skeleton Automatic',
-    brand: 'Horology Studio',
-    price: 8900,
-    rating: 5,
-    tag: 'LIMITED EDITION',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80',
-  },
-  {
-    id: '3',
-    title: 'Terracotta Oversized Hoodie',
-    brand: 'Jacquemus Studio',
-    price: 680,
-    rating: 5,
-    tag: 'BESTSELLER',
-    image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1000&q=80',
-  },
-  {
-    id: '4',
-    title: 'Acoustic Studio Headphones',
-    brand: 'Audio Artisan',
-    price: 1100,
-    rating: 5,
-    tag: 'TRENDING DROP',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=80',
-  },
+  { name: 'Sneakers & Kicks', count: 'Footwear Collection', icon: '👟', href: '/feed?category=Footwear' },
+  { name: 'Luxury Apparel', count: 'Outerwear & Tops', icon: '🧥', href: '/feed?category=Outerwear' },
+  { name: 'Haute Horlogerie', count: 'Timepieces', icon: '⌚', href: '/feed?category=Timepieces' },
+  { name: 'Cyber Tech & Gear', count: 'Tech & Gear', icon: '⚡', href: '/feed?category=Gear' },
+  { name: 'Tailoring & Suits', count: 'VIP Formalwear', icon: '✨', href: '/feed?category=Tailoring' },
+  { name: 'Denim & Bottoms', count: 'Raw Denim & Trousers', icon: '👖', href: '/feed?category=Bottoms' },
 ];
 
 const liveTicker = [
@@ -72,7 +31,23 @@ const liveTicker = [
 ];
 
 export default function LandingPage() {
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+
+  // Fetch real products from MongoDB API
+  useEffect(() => {
+    fetch('/api/products')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.products && data.products.length > 0) {
+          // Grab the first 4 real products from the database
+          setFeaturedProducts(data.products.slice(0, 4));
+        }
+      })
+      .catch((err) => console.error('Failed to load featured products:', err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const toggleWishlist = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,13 +56,10 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#231E18] selection:bg-[#C8A24F] selection:text-white antialiased overflow-x-hidden">
-     
+    <div className="min-h-screen bg-[#FAF7F2] text-[#231E18] selection:bg-[#C8A24F] selection:text-white antialiased overflow-x-hidden font-sans">
+      <Navbar />
 
-      {/* 2. Glass Navbar */}
-    <Navbar />
-
-      {/* 3. Social Ticker */}
+      {/* Social Ticker */}
       <div className="w-full bg-white/50 border-b border-[#EAE2D5] py-3 overflow-hidden">
         <div className="flex items-center gap-12 whitespace-nowrap animate-marquee">
           {liveTicker.concat(liveTicker).map((item, idx) => (
@@ -104,7 +76,7 @@ export default function LandingPage() {
       </div>
 
       <main className="w-full space-y-32 py-16">
-        {/* 4. Full-Width Hero Section */}
+        {/* Full-Width Hero Section */}
         <section className="w-full px-6 md:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             {/* Left Image Showcase */}
@@ -132,7 +104,7 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            {/* Right Hero Headline & CTAs */}
+            {/* Right Hero Headline */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -144,34 +116,32 @@ export default function LandingPage() {
                   <Sparkles className="w-3.5 h-3.5 text-[#C8A24F]" /> Zero-Cost Luxury Simulator
                 </span>
 
-                {/* h1 uses FontOne */}
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-normal text-[#1C1712] leading-[1.05] tracking-tight m-0">
                   Buy Luxury.<br />
                   <span className="italic text-[#C8A24F]">Spend</span> Nothing.
                 </h1>
 
-                {/* p uses FontTwo */}
                 <p className="text-base sm:text-lg text-[#75695C] leading-relaxed font-normal max-w-xl m-0">
                   Discover thousands of curated luxury drops, build your dream wardrobe archive, and spend only virtual capital.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-5 pt-2">
+              <div className="flex flex-col sm:flex-row items-center gap-5 pt-2 font-mono text-xs font-bold uppercase">
                 <Link
-                  href="/signup"
-                  className="w-full sm:w-auto px-9 py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full shadow-[0_15px_30px_rgba(200,162,79,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                  href="/feed"
+                  className="w-full sm:w-auto px-9 py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white tracking-widest rounded-full shadow-[0_15px_30px_rgba(200,162,79,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
                 >
                   Start Shopping <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/feed"
-                  className="w-full sm:w-auto px-9 py-4 bg-white/80 hover:bg-white text-[#1C1712] border border-[#EAE2D5] font-mono text-xs font-bold uppercase tracking-widest rounded-full shadow-sm transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-9 py-4 bg-white/80 hover:bg-white text-[#1C1712] border border-[#EAE2D5] tracking-widest rounded-full shadow-sm transition-all flex items-center justify-center gap-2"
                 >
                   Browse Collections
                 </Link>
               </div>
 
-              {/* Statistics Bar */}
+              {/* Stats Bar */}
               <div className="pt-8 border-t border-[#EAE2D5] grid grid-cols-3 gap-6 font-mono">
                 <div>
                   <h2 className="text-3xl md:text-4xl font-normal text-[#1C1712] m-0">120K+</h2>
@@ -190,7 +160,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 5. Categories Grid */}
+        {/* Categories Grid */}
         <section className="w-full px-6 md:px-16 space-y-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EAE2D5] pb-6">
             <div>
@@ -219,7 +189,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 6. Featured Products */}
+        {/* Featured Real Products from DB */}
         <section className="w-full px-6 md:px-16 space-y-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EAE2D5] pb-6">
             <div>
@@ -231,61 +201,84 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => {
-              const isLiked = wishlist[product.id];
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="bg-white/60 border border-white/80 rounded-[36px] h-80 animate-pulse" />
+              ))}
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts.map((product) => {
+                const isLiked = wishlist[product._id];
 
-              return (
-                <div
-                  key={product.id}
-                  className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(200,162,79,0.12)] transition-all duration-500 hover:-translate-y-2 group flex flex-col justify-between"
-                >
-                  <div className="h-72 bg-[#F8F3EB] relative overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <span className="absolute top-4 left-4 bg-[#1C1712] text-white font-mono text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-widest">
-                      {product.tag}
-                    </span>
+                return (
+                  <div
+                    key={product._id}
+                    className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[36px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(200,162,79,0.12)] transition-all duration-500 hover:-translate-y-2 group flex flex-col justify-between"
+                  >
+                    {/* Clickable Image to Product Detail Page */}
+                    <Link href={`/products/${product._id}`} className="h-72 bg-[#F8F3EB] relative overflow-hidden block">
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                      {product.tag && (
+                        <span className="absolute top-4 left-4 bg-[#1C1712] text-white font-mono text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-widest">
+                          {product.tag}
+                        </span>
+                      )}
 
-                    <button
-                      onClick={(e) => toggleWishlist(product.id, e)}
-                      className="absolute top-4 right-4 p-3 rounded-full bg-white/80 backdrop-blur-md text-[#1C1712] hover:text-[#C8A24F] transition-colors shadow-sm"
-                    >
-                      <Heart className={`w-4 h-4 ${isLiked ? 'fill-[#C8A24F] text-[#C8A24F]' : ''}`} />
-                    </button>
-                  </div>
+                      <button
+                        onClick={(e) => toggleWishlist(product._id, e)}
+                        className="absolute top-4 right-4 p-3 rounded-full bg-white/80 backdrop-blur-md text-[#1C1712] hover:text-[#C8A24F] transition-colors shadow-sm z-10"
+                      >
+                        <Heart className={`w-4 h-4 ${isLiked ? 'fill-[#C8A24F] text-[#C8A24F]' : ''}`} />
+                      </button>
+                    </Link>
 
-                  <div className="p-7 space-y-5">
-                    <div>
-                      <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#75695C] m-0">{product.brand}</p>
-                      <h3 className="font-normal text-2xl text-[#1C1712] mt-1 line-clamp-1 m-0">{product.title}</h3>
-                      <div className="flex items-center gap-1 text-[#C8A24F] mt-1.5">
-                        {[...Array(product.rating)].map((_, i) => (
-                          <Star key={i} className="w-3.5 h-3.5 fill-[#C8A24F]" />
-                        ))}
+                    <div className="p-7 space-y-5">
+                      <div>
+                        <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#75695C] m-0">
+                          {product.category || 'Luxury Collection'}
+                        </p>
+                        <Link href={`/products/${product._id}`} className="no-underline">
+                          <h3 className="font-normal text-2xl text-[#1C1712] hover:text-[#C8A24F] transition-colors mt-1 line-clamp-1 m-0">
+                            {product.title}
+                          </h3>
+                        </Link>
+                        <div className="flex items-center gap-1 text-[#C8A24F] mt-1.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="w-3.5 h-3.5 fill-[#C8A24F]" />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-3 border-t border-[#EAE2D5]">
+                        <h4 className="text-2xl font-normal text-[#1C1712] m-0">
+                          ${(product.price || 0).toLocaleString()}
+                        </h4>
+                        <Link
+                          href={`/products/${product._id}`}
+                          className="px-6 py-3 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full transition-colors flex items-center gap-1.5 shadow-md shadow-[#C8A24F]/20"
+                        >
+                          Inspect Item <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-[#EAE2D5]">
-                      <h4 className="text-2xl font-normal text-[#1C1712] m-0">${product.price.toLocaleString()}</h4>
-                      <Link
-                        href="/feed"
-                        className="px-6 py-3 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full transition-colors flex items-center gap-1.5 shadow-md shadow-[#C8A24F]/20"
-                      >
-                        Virtual Buy <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-[#75695C] font-mono text-xs uppercase">
+              No featured items available. Run `npx tsx scripts/seed.ts` to populate the catalog.
+            </div>
+          )}
         </section>
 
-        {/* 7. Collection Banner */}
+        {/* Collection Banner */}
         <section className="w-full px-6 md:px-16">
           <div className="relative rounded-[48px] overflow-hidden border border-white/80 shadow-2xl h-[480px] flex items-center p-8 md:p-20">
             <img
@@ -306,7 +299,7 @@ export default function LandingPage() {
                 Acquire handcrafted tourbillons, skeleton chronographs, and rare releases using your daily virtual allowance.
               </p>
               <Link
-                href="/feed?category=watches"
+                href="/feed?category=Timepieces"
                 className="inline-flex items-center gap-2 px-9 py-4 bg-white text-[#1C1712] hover:bg-[#FAF7F2] font-mono text-xs font-bold uppercase tracking-widest rounded-full transition-colors shadow-xl"
               >
                 Explore Collection <ArrowRight className="w-4 h-4" />
@@ -314,60 +307,11 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
-        {/* 8. Allowance Dashboard */}
-        <section className="w-full px-6 md:px-16">
-          <div className="max-w-5xl mx-auto bg-white/70 backdrop-blur-2xl border border-white/90 rounded-[44px] p-10 md:p-16 shadow-[0_25px_60px_rgba(0,0,0,0.04)] space-y-10">
-            <div className="text-center space-y-2">
-              <span className="font-mono text-xs uppercase tracking-widest text-[#9B7A2B]">Capital Allocation Dashboard</span>
-              <h2 className="text-4xl sm:text-5xl font-normal text-[#1C1712] m-0">Daily Virtual Allowance</h2>
-              <p className="text-sm text-[#75695C] max-w-md mx-auto m-0">
-                Log in every 24 hours to collect daily grants, maintain streak multipliers, and claim bonus bucks.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              <div className="bg-[#FAF7F2] border border-[#EAE2D5] rounded-[28px] p-7 space-y-2">
-                <span className="font-mono text-xs font-bold text-[#75695C] uppercase tracking-wider block">Today's Balance</span>
-                <h3 className="text-4xl font-normal text-[#1C1712] m-0">$10,000.00</h3>
-                <p className="font-mono text-[11px] text-[#75695C] m-0">Credited automatically upon login.</p>
-              </div>
-
-              <div className="bg-[#FAF7F2] border border-[#EAE2D5] rounded-[28px] p-7 space-y-2">
-                <span className="font-mono text-xs font-bold text-[#75695C] uppercase tracking-wider block">Active Login Streak</span>
-                <h3 className="text-4xl font-normal text-[#9B7A2B] m-0">8 Days</h3>
-                <p className="font-mono text-[11px] text-[#75695C] m-0">Streak multiplier active (+20% bonus).</p>
-              </div>
-            </div>
-
-            <div className="text-center pt-2">
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 px-9 py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full shadow-lg shadow-[#C8A24F]/25 transition-all"
-              >
-                Claim Daily Grant <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* 9. Brand Showcase */}
-        <section className="w-full px-6 md:px-16 text-center space-y-6">
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#75695C]">
-            Simulated Global Luxury Maisons
-          </span>
-          <div className="flex flex-wrap justify-center items-center gap-10 sm:gap-20 text-2xl sm:text-3xl text-[#75695C]/50 tracking-widest">
-            <h4 className="m-0 text-[#75695C]/50">JACQUEMUS</h4>
-            <h4 className="m-0 text-[#75695C]/50">ZARA STUDIO</h4>
-            <h4 className="m-0 text-[#75695C]/50">AESOP</h4>
-            <h4 className="m-0 text-[#75695C]/50">RARE RABBIT</h4>
-            <h4 className="m-0 text-[#75695C]/50">COS</h4>
-          </div>
-        </section>
       </main>
-      <AppleScrollSection/>
 
-      {/* 10. Footer */}
+      <AppleScrollSection />
+
+      {/* Footer */}
       <footer className="w-full bg-white/80 border-t border-[#EAE2D5] py-12 px-6 md:px-16">
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">

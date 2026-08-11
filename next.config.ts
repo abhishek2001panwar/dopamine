@@ -1,7 +1,16 @@
-import type { NextConfig } from "next";
+import withPWAInit from '@ducanh2912/next-pwa';
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const withPWA = withPWAInit({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+ 
+});
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Add empty turbopack config to silence the webpack conflict error
+  turbopack: {},
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

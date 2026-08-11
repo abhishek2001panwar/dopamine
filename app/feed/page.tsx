@@ -25,7 +25,7 @@ export default function FeedPage() {
   const [addingState, setAddingState] = useState<Record<string, 'idle' | 'loading' | 'added'>>({});
   const [floatingParticles, setFloatingParticles] = useState<{ id: string; x: number; y: number; text: string }[]>([]);
 
-  const { onboarded, setUserData, addToCart } = useAppStore();
+  const { onboarded, setUserData, addToCart, fakeBalance, setBalance } = useAppStore();
 
   const toggleWishlist = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,7 +33,7 @@ export default function FeedPage() {
     setWishlist((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // 1. Session Auth Check
+  // 1. Authenticate user & check once-per-day onboarding
   useEffect(() => {
     fetch('/api/user/profile')
       .then((res) => {
@@ -52,17 +52,23 @@ export default function FeedPage() {
             onboarded: data.user.onboarded,
           });
 
-          if (!data.user.onboarded && !onboarded) {
+          // --- ONCE-PER-DAY ONBOARDING CHECK ---
+          const todayStr = new Date().toISOString().split('T')[0];
+          const lastSeenLocal = localStorage.getItem('dopacart_last_onboarded_date');
+
+          if (!data.user.onboarded && lastSeenLocal !== todayStr) {
             setShowOnboarding(true);
+          } else {
+            setShowOnboarding(false);
           }
         } else {
           setIsAuthenticated(false);
         }
       })
       .catch(() => setIsAuthenticated(false));
-  }, [onboarded, setUserData]);
+  }, [setUserData]);
 
-  // 2. Fetch products if authenticated
+  // 2. Fetch products & drops if authenticated
   useEffect(() => {
     if (isAuthenticated === false) return;
 
@@ -81,13 +87,10 @@ export default function FeedPage() {
   const handleAddToCart = (item: any, e: React.MouseEvent) => {
     const productId = item._id;
 
-    // Prevent double clicking
     if (addingState[productId] === 'loading' || addingState[productId] === 'added') return;
 
-    // Step 1: Set Loading State
     setAddingState((prev) => ({ ...prev, [productId]: 'loading' }));
 
-    // Spawn Floating Price Particle
     const rect = e.currentTarget.getBoundingClientRect();
     const particleId = `${productId}-${Date.now()}`;
     setFloatingParticles((prev) => [
@@ -95,17 +98,14 @@ export default function FeedPage() {
       { id: particleId, x: rect.left + rect.width / 2, y: rect.top, text: `+$${item.price?.toLocaleString()}` },
     ]);
 
-    // Clean up particle after animation finishes
     setTimeout(() => {
       setFloatingParticles((prev) => prev.filter((p) => p.id !== particleId));
     }, 1000);
 
-    // Step 2: Trigger Cart Add & Confetti Burst
     setTimeout(() => {
       addToCart(item);
       setAddingState((prev) => ({ ...prev, [productId]: 'added' }));
 
-      // Mini Confetti burst from click coordinates
       confetti({
         particleCount: 25,
         spread: 50,
@@ -113,11 +113,47 @@ export default function FeedPage() {
         colors: ['#C8A24F', '#9B7A2B', '#FFFFFF'],
       });
 
-      // Step 3: Reset Button State back to Idle after 1.8 seconds
       setTimeout(() => {
         setAddingState((prev) => ({ ...prev, [productId]: 'idle' }));
       }, 1800);
     }, 450);
+  };
+
+  // Connected Drop Claim Handler
+  const handleClaimSuccess = async (product: any) => {
+    if (fakeBalance < product.price) {
+      alert('Insufficient grant balance to claim this drop!');
+      return;
+    }
+
+    try {
+      addToCart(product);
+      
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.5 },
+        colors: ['#C8A24F', '#9B7A2B', '#FFFFFF'],
+      });
+    } catch (err) {
+      console.error('Failed to process drop claim:', err);
+    }
+  };
+
+  // Onboarding Completion Handler
+  const handleCompleteOnboarding = async () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    localStorage.setItem('dopacart_last_onboarded_date', todayStr);
+    useAppStore.getState().setUserData({ onboarded: true });
+
+    try {
+      await fetch('/api/user/onboarding', { method: 'POST' });
+    } catch (err) {
+      console.error('Failed to save onboarding state:', err);
+    }
+
+    setShowOnboarding(false);
   };
 
   // Loading state while checking authentication
@@ -166,10 +202,6 @@ export default function FeedPage() {
     );
   }
 
-  const handleClaimSuccess = (product: any) => {
-    addToCart(product);
-  };
-
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#1C1712] selection:bg-[#C8A24F] selection:text-white pb-24 antialiased overflow-x-hidden relative">
       <Navbar />
@@ -188,7 +220,7 @@ export default function FeedPage() {
       </div>
 
       {showOnboarding && !onboarded && (
-        <OnboardingModal onComplete={() => setShowOnboarding(false)} />
+        <OnboardingModal onComplete={handleCompleteOnboarding} />
       )}
 
       <main className="w-full px-6 md:px-16 pt-8 space-y-16">
@@ -270,11 +302,14 @@ export default function FeedPage() {
                     <div>
                       {/* Image Container */}
                       <div className="h-72 bg-[#F8F3EB] relative overflow-hidden">
+                        <Link href={`/products/${item._id}`}>
+ 
                         <img
                           src={item.image}
                           alt={item.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
+                        </Link>
                         {item.tag && (
                           <span className="absolute top-4 left-4 bg-[#1C1712] text-white font-mono text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-widest">
                             {item.tag}

@@ -64,7 +64,7 @@ export default function ClosetPage() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#1C1712] selection:bg-[#C8A24F] selection:text-white pb-24 antialiased overflow-x-hidden">
       <Navbar />
 
-      <main className="w-full px-6 md:px-16 pt-8 space-y-12 max-w-7xl mx-auto font-sans">
+      <main className="w-full px-6 md:px-16 pt-8 space-y-12 max-w-8xl mx-auto font-sans">
         {/* Banner Header with Flex Card Trigger */}
         <div className="bg-[#1C1712] text-[#F8F3EB] border border-[#C8A24F]/40 p-8 md:p-12 rounded-[44px] shadow-[0_25px_60px_rgba(0,0,0,0.12)] flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
           {/* Ambient Background Glow */}
@@ -122,7 +122,7 @@ export default function ClosetPage() {
 
         {/* Category Filters */}
         {!loading && items.length > 0 && (
-          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none font-mono">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none ">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -146,7 +146,7 @@ export default function ClosetPage() {
             <p className="font-mono text-xs uppercase tracking-widest font-bold text-[#75695C] m-0">Opening Archive Vault...</p>
           </div>
         ) : filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
             {filteredItems.map((item) => {
               const isEquipped = !!equippedIds[item._id];
               return (

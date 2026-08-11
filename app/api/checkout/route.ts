@@ -8,6 +8,7 @@ import { Order } from '@/src/models/Order';
 import { evaluateAndGrantBadges } from '@/src/lib/achievements';
 import { Resend } from 'resend';
 import { getReceiptEmailHtml } from '@/src/lib/emailTemplates';
+import { transporter } from '@/src/lib/nodemailer';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -110,25 +111,25 @@ export async function POST(req: Request) {
       console.warn('Badge evaluation error:', badgeErr);
     }
 
-    // 8. Editorial Luxury Resend Email Dispatch
-    try {
-      if (process.env.RESEND_API_KEY && user.email) {
-        await resend.emails.send({
-          from: 'DopaCart Vault <onboarding@resend.dev>', // Replace with your verified domain in production
-          to: user.email,
-          subject: `✨ Acquisition Dossier #${order._id.toString().substring(0, 8).toUpperCase()} Confirmed`,
-          html: getReceiptEmailHtml({
-            userName: user.name || 'High Roller',
-            orderId: order._id.toString(),
-            items: orderItems,
-            totalAmount,
-            deliveryAddress: finalAddress,
-          }),
-        });
-      }
-    } catch (emailErr) {
-      console.warn('Resend email failed, but order was completed:', emailErr);
-    }
+  // Inside your checkout API route:
+try {
+  if (user.email) {
+    await transporter.sendMail({
+      from: `"DopaCart Vault" <${process.env.GMAIL_USER}>`,
+      to: user.email, // <--- Sends to ANY user email address!
+      subject: `✨ Acquisition Dossier #${order._id.toString().substring(0, 8).toUpperCase()} Confirmed`,
+      html: getReceiptEmailHtml({
+        userName: user.name || 'High Roller',
+        orderId: order._id.toString(),
+        items: orderItems,
+        totalAmount,
+        deliveryAddress: finalAddress,
+      }),
+    });
+  }
+} catch (emailErr) {
+  console.warn('Gmail sending failed:', emailErr);
+}
 
     return NextResponse.json({
       success: true,

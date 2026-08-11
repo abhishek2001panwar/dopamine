@@ -30,6 +30,7 @@ const UserSchema = new Schema(
     unlockedBadges: { type: [String], default: [] },
     totalSpent: { type: Number, default: 0 },
     ordersCount: { type: Number, default: 0 },
+    
   },
   { timestamps: true }
 );

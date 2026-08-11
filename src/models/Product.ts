@@ -1,21 +1,29 @@
 import mongoose, { Schema, model, models } from 'mongoose';
 
+const ReviewSchema = new Schema({
+  author: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  date: { type: String, required: true },
+  verifiedPurchase: { type: Boolean, default: true },
+});
+
 const ProductSchema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String, required: true },
-    tag: { type: String, required: true },
+    tag: { type: String, default: 'NEW' },
+    category: { type: String, default: 'General' },
     dopamineScore: { type: Number, default: 500 },
-
-    // Drop Culture Fields
-    isDrop: { type: Boolean, default: false },
-    dropStartTime: { type: Date, default: null }, // e.g., Drop goes live at 5 PM
-    virtualStock: { type: Number, default: 50 }, // Limited fake supply (e.g., only 50 exist)
-    claimedCount: { type: Number, default: 0 },
+    sizes: { type: [String], default: ['S', 'M', 'L', 'XL'] },
+    stock: { type: Number, default: 15 },
+    rating: { type: Number, default: 4.8 },
+    reviewsCount: { type: Number, default: 12 },
+    reviews: [ReviewSchema],
   },
   { timestamps: true }
 );
 
-export const Product = models.Product || model('Product', ProductSchema);
+export default models.Product || model('Product', ProductSchema);

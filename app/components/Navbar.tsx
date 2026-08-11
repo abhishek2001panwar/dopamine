@@ -44,6 +44,7 @@ export function Navbar() {
   const navLinks = [
     { label: 'Catalog', href: '/feed' },
     { label: 'Wardrobe', href: '/closet' },
+    { label: 'Badges', href: '/badges' }, // <--- Trophy Room Route Added
     { label: 'Standings', href: '/leaderboard' },
     { label: 'Profile', href: '/profile' },
   ];
