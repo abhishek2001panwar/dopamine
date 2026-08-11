@@ -1,33 +1,17 @@
 @import "tailwindcss";
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
-}
-@font-face {
-  font-family: "FontOne";
-  src: url('../fonts/PPEditorialNew-Light.4d9dd6b.ttf') format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "FontTwo";
-  src: url("../fonts/PPNeueMontreal-Regular.575e132.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-:root {
-  --font-primary: "FontOne";
-  --font-secondary: "FontTwo";
+  background: #ffffff;
+  color: #171717;
 }
 
 body {
-
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
@@ -36,31 +20,21 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-primary);
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
-p{
-  font-family: var(--font-secondary);
+p {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
-/* Prevent iOS auto-zoom on form focus */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  select,
-  textarea,
-  input[type="text"],
-  input[type="password"],
-  input[type="datetime"],
-  input[type="datetime-local"],
-  input[type="date"],
-  input[type="month"],
-  input[type="time"],
-  input[type="week"],
-  input[type="number"],
-  input[type="email"],
-  input[type="url"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="color"] {
-    font-size: 16px !important;
-  }
+button,
+a,
+input,
+textarea,
+select {
+  font-family: var(--font-inter), sans-serif;
 }

@@ -4,16 +4,14 @@ import "./globals.css";
 import { BadgeUnlockToast } from "./components/BadgeUnlockToast";
 import { LiveActivityTicker } from "./components/LiveActivityTicker";
 import { Plus_Jakarta_Sans, Playfair_Display } from 'next/font/google';
+import { Inter } from "next/font/google";
 
 
-const jakarta = Plus_Jakarta_Sans({ 
-  subsets: ['latin'],
-  variable: '--font-jakarta'
-});
 
-const playfair = Playfair_Display({ 
-  subsets: ['latin'],
-  variable: '--font-playfair'
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 export const metadata: Metadata = {
   title: "DopaCart — Luxury Vault",
@@ -67,7 +65,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jakarta.variable} ${playfair.variable} h-full antialiased`}
+      className={`${inter.variable}  h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
          <BadgeUnlockToast />
