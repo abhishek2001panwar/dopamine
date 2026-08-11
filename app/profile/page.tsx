@@ -16,9 +16,13 @@ import {
   ArrowRight,
   ShieldCheck,
   Trophy,
-  Award,
-  Zap
+  Download,
+  CheckCircle2,
+  Truck,
+  MapPin,
+  FileText
 } from 'lucide-react';
+import { OrderTracker } from '../components/OrderTracker';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<any>(null);
@@ -26,7 +30,7 @@ export default function ProfilePage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/user/profile')
+    fetch('/api/user/profile', { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) {
@@ -64,19 +68,83 @@ export default function ProfilePage() {
     setExpandedOrder(expandedOrder === id ? null : id);
   };
 
-  // Calculate Gamified Tier Rank Progress
+  // Gamified Tier Progress
   const totalSpent = user.totalSpent || 0;
   const nextTierThreshold = totalSpent < 10000 ? 10000 : totalSpent < 50000 ? 50000 : 100000;
   const progressPercent = Math.min(Math.round((totalSpent / nextTierThreshold) * 100), 100);
+
+  // PDF Receipt Print Helper
+  const handleDownloadReceipt = (order: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const formattedDate = new Date(order.createdAt).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>DopaCart Receipt #${order._id.substring(0, 8)}</title>
+
+          <style>
+            body { font-family: monospace; background: #FAF7F2; color: #1C1712; padding: 40px; margin: 0; }
+            .container { max-width: 600px; margin: auto; background: #ffffff; padding: 40px; border-radius: 24px; border: 1px solid #EAE2D5; }
+            .header { border-bottom: 2px solid #C8A24F; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+            .title { font-size: 24px; font-weight: bold; }
+            .item-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #FAF7F2; }
+            .total { border-top: 2px solid #1C1712; margin-top: 20px; padding-top: 20px; font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
+            .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #75695C; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div>
+                <div class="title">DopaCart® Vault Receipt</div>
+                <div>ID: #${order._id}</div>
+              </div>
+              <div>Date: ${formattedDate}</div>
+            </div>
+            
+            <h3>Itemized Breakdown</h3>
+            ${order.items?.map((item: any) => `
+              <div class="item-row">
+                <span>${item.title} (${item.selectedSize || 'Std'})</span>
+                <span>$${(item.price || 0).toLocaleString()}</span>
+              </div>
+            `).join('')}
+
+            <div class="total">
+              <span>Total Deployed Capital</span>
+              <span>$${(order.totalAmount || 0).toLocaleString()}</span>
+            </div>
+
+            <div class="footer">
+              <p>Simulated Digital Transaction • Zero Real Money Exchanged</p>
+              <p>DopaCart Luxury Vault Protocol</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() { window.print(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#1C1712] selection:bg-[#C8A24F] selection:text-white pb-24 antialiased overflow-x-hidden">
       <Navbar />
 
       <main className="w-full px-6 md:px-16 pt-8 space-y-12 max-w-7xl mx-auto">
-        {/* Header Profile Info & VIP Card */}
+        {/* Header Profile Info */}
         <div className="bg-white/70 backdrop-blur-2xl border border-white/90 p-8 md:p-12 rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.04)] flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
-          {/* Subtle Ambient Glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8A24F]/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="flex items-center gap-6 z-10">
@@ -127,9 +195,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats Flex Grid */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Active Streak */}
           <div className="bg-white/60 backdrop-blur-2xl border border-white/80 p-8 rounded-[32px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(200,162,79,0.12)] transition-all duration-300 flex items-center gap-5">
             <div className="p-4 bg-[#F8F3EB] text-[#C8A24F] rounded-2xl border border-[#EAE2D5] shrink-0">
               <Flame className="w-7 h-7" />
@@ -140,7 +207,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Total Spent */}
           <div className="bg-white/60 backdrop-blur-2xl border border-white/80 p-8 rounded-[32px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(200,162,79,0.12)] transition-all duration-300 flex items-center gap-5">
             <div className="p-4 bg-[#F8F3EB] text-[#C8A24F] rounded-2xl border border-[#EAE2D5] shrink-0">
               <DollarSign className="w-7 h-7" />
@@ -151,7 +217,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Total Receipts */}
           <div className="bg-white/60 backdrop-blur-2xl border border-white/80 p-8 rounded-[32px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(200,162,79,0.12)] transition-all duration-300 flex items-center gap-5">
             <div className="p-4 bg-[#F8F3EB] text-[#C8A24F] rounded-2xl border border-[#EAE2D5] shrink-0">
               <Package className="w-7 h-7" />
@@ -163,12 +228,12 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Order History Section */}
+        {/* Order History & Tracking Section */}
         <section className="space-y-8">
           <div className="border-b border-[#EAE2D5] pb-5 flex justify-between items-end">
             <div>
               <span className="font-mono text-xs uppercase tracking-widest text-[#9B7A2B]">
-                Vault Transactions
+                Vault Transactions & Tracking
               </span>
               <h2 className="text-4xl font-normal text-[#1C1712] flex items-center gap-3 mt-1 m-0">
                 <Package className="w-8 h-8 text-[#C8A24F]" /> Acquisition Receipts
@@ -194,7 +259,7 @@ export default function ProfilePage() {
                     key={order._id}
                     className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-[32px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] overflow-hidden transition-all duration-300"
                   >
-                    {/* Receipt Header Bar */}
+                    {/* Header Bar */}
                     <div 
                       onClick={() => toggleOrder(order._id)}
                       className={`p-6 sm:p-8 flex items-center justify-between cursor-pointer transition-colors ${
@@ -222,10 +287,18 @@ export default function ProfilePage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-5">
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={(e) => handleDownloadReceipt(order, e)}
+                          className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-[#FAF7F2] border border-[#EAE2D5] text-[#1C1712] font-mono text-xs font-bold uppercase rounded-full shadow-sm transition-all"
+                        >
+                          <Download className="w-3.5 h-3.5 text-[#C8A24F]" /> PDF Receipt
+                        </button>
+
                         <h4 className="text-2xl font-normal text-[#1C1712] m-0">
                           ${order.totalAmount?.toLocaleString()}
                         </h4>
+
                         {isExpanded ? (
                           <ChevronUp className="w-5 h-5 text-[#1C1712]" />
                         ) : (
@@ -234,27 +307,44 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Expandable Itemized List */}
-                    {isExpanded && (
-                      <div className="border-t border-[#EAE2D5] bg-[#FAF7F2]/60 p-6 sm:p-8 space-y-4">
-                        <p className="font-mono text-[10px] font-bold text-[#9B7A2B] uppercase tracking-widest m-0">
-                          Itemized Breakdown
-                        </p>
-                        <div className="space-y-3">
-                          {order.items?.map((item: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between bg-white/80 p-4 rounded-2xl border border-[#EAE2D5] shadow-sm">
-                              <div className="flex items-center gap-4">
-                                {item.image && (
-                                  <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded-xl border border-[#EAE2D5]" />
-                                )}
-                                <h4 className="text-lg font-normal text-[#1C1712] m-0">{item.title}</h4>
-                              </div>
-                              <span className="font-mono font-bold text-base text-[#9B7A2B]">${item.price?.toLocaleString()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                   {isExpanded && (
+  <div className="border-t border-[#EAE2D5] bg-[#FAF7F2]/60 p-6 sm:p-8 space-y-8 animate-fadeIn">
+    {/* Real Carrier Shipping Tracker */}
+    <OrderTracker
+      orderId={order._id}
+      createdAt={order.createdAt}
+      itemsCount={order.items?.length || 0}
+    />
+
+    {/* Itemized Breakdown */}
+    <div className="space-y-3">
+      <span className="font-mono text-[10px] font-bold text-[#9B7A2B] uppercase tracking-widest block">
+        Itemized Acquisition Breakdown
+      </span>
+
+      <div className="space-y-3">
+        {order.items?.map((item: any, idx: number) => (
+          <div key={idx} className="flex items-center justify-between bg-white p-4 rounded-2xl border border-[#EAE2D5] shadow-sm">
+            <div className="flex items-center gap-4">
+              {item.image && (
+                <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded-xl border border-[#EAE2D5]" />
+              )}
+              <div>
+                <h4 className="text-lg font-normal text-[#1C1712] m-0">{item.title}</h4>
+                <span className="font-mono text-[10px] text-[#75695C] block">
+                  Size: {item.selectedSize || 'Standard'}
+                </span>
+              </div>
+            </div>
+            <span className="font-mono font-bold text-base text-[#9B7A2B]">
+              ${item.price?.toLocaleString()}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
                   </div>
                 );
               })}

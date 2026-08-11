@@ -27,7 +27,7 @@ export function AppleScrollSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[160vh] bg-[#1C1712] text-[#F8F3EB] py-24 px-6 md:px-16 overflow-hidden flex flex-col items-center justify-start font-sans"
+      className="relative md:min-h-[160vh] bg-[#1C1712] text-[#F8F3EB] py-10 px-6 md:px-16 overflow-hidden flex flex-col items-center justify-start font-sans"
     >
       {/* Ambient Radial Lighting Glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C8A24F]/15 rounded-full blur-[140px] pointer-events-none" />
