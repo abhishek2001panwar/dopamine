@@ -11,11 +11,10 @@ import {
   ShoppingBag, 
   Trash2, 
   CreditCard, 
-  ArrowRight, 
   ShieldCheck, 
-  Plus, 
-  Minus,
-  Sparkles
+  Sparkles,
+  Wifi,
+  Lock
 } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -33,39 +32,41 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   // Calculate total price
   const total = currentCart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
 
-  const handleCheckoutConfirm = async (checkoutData: { address: string; cardName: string; cardNumber: string }) => {
-    if (total > fakeBalance) {
-      alert('Insufficient virtual funds available.');
-      return;
+const handleCheckoutConfirm = async (checkoutData: { address: string; cardName: string; cardNumber: string; otp: string }) => {
+  if (total > fakeBalance) {
+    alert('Insufficient virtual funds available on your Infinite Black Card.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        items: currentCart,
+        totalAmount: total,
+        deliveryAddress: checkoutData.address,
+        paymentCard: `${checkoutData.cardName || 'DopaCart Infinite Black Card'} (${checkoutData.cardNumber || '•••• 4890'})`,
+        otp: checkoutData.otp, // 👈 PASS THE 6-DIGIT OTP HERE!
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      setBalance(data.newBalance ?? fakeBalance - total);
+      clearCart();
+      setShowCheckoutModal(false);
+      setPurchased(true);
+    } else {
+      alert(`Checkout Failed: ${data.error || 'Unknown error'}`);
     }
-
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: currentCart,
-          totalAmount: total,
-          deliveryAddress: checkoutData.address,
-          paymentCard: `${checkoutData.cardName} (${checkoutData.cardNumber})`,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-        setBalance(data.newBalance ?? fakeBalance - total);
-        clearCart();
-        setShowCheckoutModal(false);
-        setPurchased(true);
-      } else {
-        alert(`Checkout Failed: ${data.error || 'Unknown error'}`);
-      }
-    } catch {
-      alert('Network error during transaction processing.');
-    }
-  };
+  } catch {
+    alert('Network error during transaction processing.');
+  }
+};
 
   return (
     <AnimatePresence>
@@ -94,13 +95,13 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8A24F]/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Drawer Header */}
-              <div className="p-6 border-b border-[#EAE2D5] flex items-center justify-between relative z-10 bg-white/40 backdrop-blur-md">
+              <div className="p-5 sm:p-6 border-b border-[#EAE2D5] flex items-center justify-between relative z-10 bg-white/40 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-[#1C1712] text-white rounded-full">
                     <ShoppingBag className="w-5 h-5 text-[#C8A24F]" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-normal text-[#1C1712] m-0">Quick Bag</h2>
+                    <h2 className="text-xl sm:text-2xl font-normal text-[#1C1712] m-0">Quick Bag</h2>
                     <span className="font-mono text-[10px] text-[#9B7A2B] font-bold uppercase tracking-widest">
                       {currentCart.length} {currentCart.length === 1 ? 'ITEM' : 'ITEMS'} RESERVED
                     </span>
@@ -117,7 +118,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
 
               {/* Drawer Body - Items List */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 relative z-10">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 relative z-10">
                 {purchased ? (
                   /* Order Confirmation State */
                   <div className="py-12 text-center space-y-5 bg-white/70 backdrop-blur-2xl border border-white rounded-[32px] p-8 shadow-sm">
@@ -145,10 +146,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: 20 }}
                       key={item._id || idx}
-                      className="bg-white/80 backdrop-blur-2xl border border-[#EAE2D5] rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all group"
+                      className="bg-white/80 backdrop-blur-2xl border border-[#EAE2D5] rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 shadow-sm hover:shadow-md transition-all group"
                     >
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-16 h-16 bg-[#F8F3EB] rounded-xl border border-[#EAE2D5] overflow-hidden shrink-0">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#F8F3EB] rounded-xl border border-[#EAE2D5] overflow-hidden shrink-0">
                           <img
                             src={item.image}
                             alt={item.title}
@@ -156,7 +157,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           />
                         </div>
                         <div className="space-y-0.5 truncate">
-                          <h4 className="text-lg font-normal text-[#1C1712] truncate m-0">
+                          <h4 className="text-base sm:text-lg font-normal text-[#1C1712] truncate m-0">
                             {item.title}
                           </h4>
                           <p className="font-mono text-xs font-bold text-[#9B7A2B] m-0">
@@ -167,7 +168,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                       <button
                         onClick={() => removeFromCart(item._id)}
-                        className="p-2.5 text-[#75695C] hover:text-red-500 hover:bg-red-50 rounded-full transition-colors shrink-0"
+                        className="p-2 sm:p-2.5 text-[#75695C] hover:text-red-500 hover:bg-red-50 rounded-full transition-colors shrink-0"
                         title="Remove Item"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -192,39 +193,74 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
               {/* Drawer Footer / Quick Checkout Settlement */}
               {currentCart.length > 0 && !purchased && (
-                <div className="p-6 bg-white/70 backdrop-blur-2xl border-t border-[#EAE2D5] space-y-4 relative z-10 shadow-lg">
-                  <div className="space-y-2 font-mono text-xs uppercase">
-                    <div className="flex justify-between text-[#75695C]">
-                      <span>Virtual Balance</span>
-                      <span className="font-bold text-[#1C1712]">${fakeBalance.toLocaleString()}</span>
+                <div className="p-5 sm:p-6 bg-white/80 backdrop-blur-2xl border-t border-[#EAE2D5] space-y-4 relative z-10 shadow-lg">
+                  
+                  {/* --- PRIMARY PAYMENT METHOD: DIGITAL INFINITE BLACK CARD --- */}
+                  <div className="bg-gradient-to-r from-[#0F0D0B] via-[#1C1712] to-[#2B231B] text-[#F8F3EB] p-3.5 rounded-2xl border border-[#C8A24F]/40 shadow-sm space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#C8A24F]/10 rounded-full blur-xl pointer-events-none" />
+                    
+                    <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-[#C8A24F] font-bold">
+                      <span className="flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-[#C8A24F]" /> Protected Vault Payment
+                      </span>
+                      <span className="bg-[#C8A24F]/20 text-[#C8A24F] px-2 py-0.5 rounded-full border border-[#C8A24F]/30">
+                        PRIMARY
+                      </span>
                     </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        {/* Golden Chip Icon */}
+                        <div className="w-6 h-4.5 bg-gradient-to-br from-[#EAE2D5] via-[#C8A24F] to-[#9B7A2B] rounded border border-[#FAF7F2]/60 shadow-sm shrink-0" />
+                        <div>
+                          <p className="font-serif-luxury text-xs text-white m-0 font-bold tracking-tight">
+                            Infinite Black Card
+                          </p>
+                          <span className="font-mono text-[10px] text-[#75695C] block">
+                            4890 •••• •••• 9999
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-right font-mono">
+                        <span className="text-[9px] text-[#75695C] uppercase block">Card Balance</span>
+                        <span className="text-xs font-bold text-[#C8A24F]">
+                          ${(fakeBalance || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="space-y-1.5 font-mono text-xs uppercase">
                     <div className="flex justify-between items-end border-t border-[#EAE2D5] pt-2 text-sm">
-                      <span className="font-sans text-xl font-normal text-[#1C1712]">Total</span>
+                      <span className="font-sans text-lg font-normal text-[#1C1712]">Total Required</span>
                       <span className="font-mono text-2xl font-bold text-[#9B7A2B]">
                         ${total.toLocaleString()}
                       </span>
                     </div>
                   </div>
 
+                  {/* Actions */}
                   <div className="space-y-2">
                     <button
                       onClick={() => setShowCheckoutModal(true)}
-                      className="w-full py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full flex items-center justify-center gap-2 transition-all shadow-md shadow-[#C8A24F]/20 active:scale-95"
+                      className="w-full py-3.5 sm:py-4 bg-[#C8A24F] hover:bg-[#B38C3B] text-white font-mono text-xs font-bold uppercase tracking-widest rounded-full flex items-center justify-center gap-2 transition-all shadow-md shadow-[#C8A24F]/20 active:scale-95"
                     >
-                      <CreditCard className="w-4 h-4" /> Quick Checkout
+                      <CreditCard className="w-4 h-4" /> Authorize Checkout
                     </button>
 
                     <Link
-                      href="/cart"
+                      href="/feed"
                       onClick={onClose}
-                      className="w-full py-2.5 text-center font-mono text-[11px] font-bold text-[#75695C] hover:text-[#1C1712] uppercase tracking-widest block transition-colors"
+                      className="w-full py-1.5 text-center font-mono text-[10px] sm:text-[11px] font-bold text-[#75695C] hover:text-[#1C1712] uppercase tracking-widest block transition-colors"
                     >
-                      View Full Bag Page →
+                      Keep Browsing Catalog →
                     </Link>
                   </div>
 
-                  <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono uppercase text-[#75695C] pt-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#C8A24F]" /> Zero Real Money • Instant Authorization
+                  <div className="flex items-center justify-center gap-1.5 text-[9px] sm:text-[10px] font-mono uppercase text-[#75695C]">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#C8A24F]" /> Zero Real Money • Instant Card Authorization
                   </div>
                 </div>
               )}

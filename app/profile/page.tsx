@@ -18,6 +18,7 @@ import {
   Download
 } from 'lucide-react';
 import { OrderTracker } from '../components/OrderTracker';
+import { DigitalVaultCard } from '../components/DigitalVaultCard';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<any>(null);
@@ -167,6 +168,11 @@ export default function ProfilePage() {
             </span>
           </div>
         </div>
+
+        <DigitalVaultCard 
+    userName={user.name} 
+    email={user.email} 
+  />
 
         {/* Gamified Tier Progress Bar */}
         <div className="bg-white/70 backdrop-blur-2xl border border-white/90 p-5 sm:p-8 rounded-[24px] sm:rounded-[36px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] space-y-3 sm:space-y-4">

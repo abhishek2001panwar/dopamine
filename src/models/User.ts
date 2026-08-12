@@ -11,6 +11,11 @@ const UserSchema = new Schema(
     onboarded: { type: Boolean, default: false },
     deliveryAddress: { type: String, default: 'The Cloud' },
     shoppingVibe: { type: String, default: 'Midnight Impulse' },
+    // 👈 MUST BE EXPLICITLY DEFINED HERE
+    cardOtp: { type: String, default: null },
+    cardOtpExpiry: { type: Date, default: null },
+
+      preferredPaymentCard: { type: String, default: "Infinite Black Card" },
 
     // Cart & Stats
     cart: {
@@ -30,7 +35,7 @@ const UserSchema = new Schema(
     unlockedBadges: { type: [String], default: [] },
     totalSpent: { type: Number, default: 0 },
     ordersCount: { type: Number, default: 0 },
-    
+   
   },
   { timestamps: true }
 );

@@ -100,8 +100,8 @@ export function SpinWheelModal() {
       ctx.rotate(startAngle + sectorAngle / 2);
       ctx.textAlign = 'right';
       ctx.fillStyle = sector.text;
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(sector.label, radius - 20, 4);
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(sector.label, radius - 16, 4);
       ctx.restore();
     }
 
@@ -200,16 +200,16 @@ export function SpinWheelModal() {
   return (
     <>
       {/* Floating Trigger Banner */}
-      <div className="bg-white/70 backdrop-blur-2xl border border-white/90 p-6 rounded-[32px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row items-center justify-between gap-6 font-sans relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-[#C8A24F]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-white/70 backdrop-blur-2xl border border-white/90 p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] shadow-[0_15px_35px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 font-sans relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-36 sm:w-48 h-36 sm:h-48 bg-[#C8A24F]/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex items-center gap-4 z-10">
-          <div className="p-3 bg-[#1C1712] text-[#F8F3EB] rounded-2xl border border-[#EAE2D5] shrink-0 shadow-md">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-3 sm:gap-4 z-10 w-full sm:w-auto">
+          <div className="p-2.5 sm:p-3 bg-[#1C1712] text-[#F8F3EB] rounded-2xl border border-[#EAE2D5] shrink-0 shadow-md">
             <Trophy className="w-5 h-5 text-[#C8A24F]" />
           </div>
           <div>
-            <h4 className="text-2xl font-normal text-[#1C1712] m-0">Daily Allowance Wheel</h4>
-            <p className="font-mono text-xs text-[#75695C] m-0">
+            <h4 className="text-lg sm:text-2xl font-normal text-[#1C1712] m-0">Daily Allowance Wheel</h4>
+            <p className="font-mono text-[11px] sm:text-xs text-[#75695C] m-0 pt-0.5">
               {hasSpun ? 'Daily spin claimed! Refills in 24 hours.' : 'Spin every 24 hours to claim instant bonus bucks.'}
             </p>
           </div>
@@ -217,7 +217,7 @@ export function SpinWheelModal() {
 
         <button
           onClick={() => setIsOpen(true)}
-          className={`w-full sm:w-auto px-7 py-3.5 font-mono text-xs font-bold uppercase tracking-widest rounded-full transition-all shadow-md flex items-center justify-center gap-2 shrink-0 active:scale-95 z-10 ${
+          className={`w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest rounded-full transition-all shadow-md flex items-center justify-center gap-2 shrink-0 active:scale-95 z-10 ${
             hasSpun
               ? 'bg-[#1C1712] text-[#C8A24F] border border-[#C8A24F]/40'
               : 'bg-[#C8A24F] hover:bg-[#B38C3B] text-white shadow-[#C8A24F]/20'
@@ -228,40 +228,41 @@ export function SpinWheelModal() {
         </button>
       </div>
 
-      {/* Wheel Modal */}
+      {/* Wheel Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-[#1C1712]/60 backdrop-blur-md flex items-center justify-center p-4 font-sans">
-          <div className="bg-[#FAF7F2] border border-white/90 p-8 sm:p-10 max-w-sm w-full space-y-6 rounded-[44px] shadow-[0_30px_70px_rgba(0,0,0,0.2)] relative text-center overflow-hidden animate-fadeIn">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8A24F]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="fixed inset-0 z-50 bg-[#1C1712]/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-sans">
+          <div className="bg-[#FAF7F2] border border-white/90 p-5 sm:p-8 md:p-10 max-w-sm w-full space-y-4 sm:space-y-6 rounded-[32px] sm:rounded-[44px] shadow-[0_30px_70px_rgba(0,0,0,0.2)] relative text-center overflow-y-auto max-h-[90vh] animate-fadeIn">
+            <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-[#C8A24F]/15 rounded-full blur-3xl pointer-events-none" />
 
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-6 p-2 text-[#75695C] hover:text-[#1C1712] hover:bg-white/80 rounded-full transition-colors shadow-sm"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-[#75695C] hover:text-[#1C1712] hover:bg-white/80 rounded-full transition-colors shadow-sm z-20"
               aria-label="Close Modal"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            <div className="space-y-1">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#9B7A2B]">
+            <div className="space-y-0.5 sm:space-y-1 pt-2 sm:pt-0">
+              <span className="font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#9B7A2B]">
                 Daily Capital Grant
               </span>
-              <h3 className="text-3xl font-normal text-[#1C1712] m-0">DopaWheel®</h3>
+              <h3 className="text-2xl sm:text-3xl font-normal text-[#1C1712] m-0">DopaWheel®</h3>
             </div>
 
-            <div className="relative w-64 h-64 mx-auto flex items-center justify-center my-4">
-              <div className="absolute -top-3 z-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[18px] border-t-[#C8A24F] drop-shadow-md" />
+            {/* Responsive Canvas Container */}
+            <div className="relative w-48 h-48 xs:w-56 xs:h-56 sm:w-64 sm:h-64 mx-auto flex items-center justify-center my-2 sm:my-4">
+              <div className="absolute -top-2.5 sm:-top-3 z-20 w-0 h-0 border-l-[8px] sm:border-l-[10px] border-l-transparent border-r-[8px] sm:border-r-[10px] border-r-transparent border-t-[14px] sm:border-t-[18px] border-t-[#C8A24F] drop-shadow-md" />
 
-              <canvas ref={canvasRef} width={256} height={256} className="w-64 h-64 rounded-full shadow-xl" />
+              <canvas ref={canvasRef} width={256} height={256} className="w-full h-full rounded-full shadow-xl" />
 
-              <div className="absolute w-12 h-12 bg-[#1C1712] text-[#C8A24F] border-2 border-[#C8A24F] rounded-full flex items-center justify-center font-bold text-[10px] tracking-widest uppercase z-10 shadow-md">
+              <div className="absolute w-10 h-10 sm:w-12 sm:h-12 bg-[#1C1712] text-[#C8A24F] border-2 border-[#C8A24F] rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px] tracking-widest uppercase z-10 shadow-md">
                 DOPA
               </div>
             </div>
 
             {wonAmount !== null && (
-              <div className="p-3 bg-white/80 border border-[#C8A24F] rounded-2xl font-mono text-xs font-bold text-[#1C1712] flex items-center justify-center gap-2 shadow-sm animate-bounce">
-                <Sparkles className="w-4 h-4 text-[#C8A24F]" />
+              <div className="p-2.5 sm:p-3 bg-white/80 border border-[#C8A24F] rounded-2xl font-mono text-[11px] sm:text-xs font-bold text-[#1C1712] flex items-center justify-center gap-2 shadow-sm animate-bounce">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C8A24F]" />
                 <span>Credited +${wonAmount.toLocaleString()} Bonus Bucks!</span>
               </div>
             )}
@@ -270,7 +271,7 @@ export function SpinWheelModal() {
               <button
                 onClick={handleSpin}
                 disabled={isSpinning || hasSpun}
-                className={`w-full py-4 font-mono text-xs font-bold uppercase tracking-widest rounded-full transition-all shadow-md ${
+                className={`w-full py-3.5 sm:py-4 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest rounded-full transition-all shadow-md ${
                   hasSpun
                     ? 'bg-[#EAE2D5] text-[#75695C] cursor-not-allowed border border-[#EAE2D5]'
                     : 'bg-[#C8A24F] hover:bg-[#B38C3B] text-white shadow-[#C8A24F]/25 active:scale-95'
@@ -283,8 +284,8 @@ export function SpinWheelModal() {
                   : 'Spin Wheel Now'}
               </button>
 
-              <p className="font-mono text-[10px] text-center text-[#75695C] uppercase font-bold m-0 flex items-center justify-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C8A24F]" /> 24-Hour Refill Available
+              <p className="font-mono text-[9px] sm:text-[10px] text-center text-[#75695C] uppercase font-bold m-0 flex items-center justify-center gap-1">
+                <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#C8A24F]" /> 24-Hour Refill Available
               </p>
             </div>
           </div>

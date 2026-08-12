@@ -6,56 +6,43 @@ import { connectToDatabase } from '@/src/lib/db';
 import { User } from '@/src/models/User';
 import { Order } from '@/src/models/Order';
 import { evaluateAndGrantBadges } from '@/src/lib/achievements';
-import { Resend } from 'resend';
-import { getReceiptEmailHtml } from '@/src/lib/emailTemplates';
 import { transporter } from '@/src/lib/nodemailer';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { getReceiptEmailHtml } from '@/src/lib/emailTemplates';
 
 export async function POST(req: Request) {
   try {
-    // 1. Secure Authentication: Extract user ID from verified JWT cookie
     const cookieStore = await cookies();
     const token = cookieStore.get('token')?.value;
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please log in to complete checkout.' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    // Verify JWT Token safely with fallback secret
     const decoded = jwt.verify(
       token, 
       process.env.JWT_SECRET || 'fallback_secret'
     ) as { id?: string; userId?: string; _id?: string };
 
-    // Flexible ID check to fix "User profile not found" errors
     const userId = decoded.id || decoded.userId || decoded._id;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Token structure missing valid User ID.' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    // 2. Parse request payload
     const body = await req.json();
-    const { items, totalAmount, deliveryAddress, paymentCard } = body || {};
+    const { items, totalAmount, deliveryAddress, paymentCard, otp } = body || {};
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Your cart is empty.' }, { status: 400 });
     }
 
-    if (totalAmount === undefined || totalAmount < 0) {
-      return NextResponse.json({ error: 'Invalid checkout amount.' }, { status: 400 });
+    const receivedOtp = String(otp || '').trim();
+    if (!receivedOtp || receivedOtp.length !== 6) {
+      return NextResponse.json({ error: 'Please enter a valid 6-digit payment authorization OTP.' }, { status: 400 });
     }
 
     await connectToDatabase();
 
-    // 3. Find User in MongoDB using safe ObjectId casting
     const targetId = mongoose.Types.ObjectId.isValid(userId)
       ? new mongoose.Types.ObjectId(userId)
       : userId;
@@ -66,17 +53,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found in database.' }, { status: 404 });
     }
 
-    // 4. Verify user balance
-    if (user.fakeBalance < totalAmount) {
-      return NextResponse.json({ error: 'Insufficient Fake Bucks balance.' }, { status: 400 });
+    // 1. Verify Payment OTP Code
+    const storedOtp = String(user.cardOtp || '').trim();
+    if (!storedOtp || storedOtp !== receivedOtp) {
+      return NextResponse.json({ error: 'Invalid payment OTP code. Please check your email.' }, { status: 400 });
     }
 
-    // 5. Create Complete Order Record
+    if (user.cardOtpExpiry && new Date() > new Date(user.cardOtpExpiry)) {
+      return NextResponse.json({ error: 'Payment authorization code expired. Request a new OTP.' }, { status: 400 });
+    }
+
+    // 2. Check balance
+    if (user.fakeBalance < totalAmount) {
+      return NextResponse.json({ error: 'Insufficient funds on your Infinite Black Card.' }, { status: 400 });
+    }
+
+    // 3. Clear OTP after verification
+    user.cardOtp = null;
+    user.cardOtpExpiry = null;
+
+    // 4. Create Order Record
     const orderItems = items.map((item: any) => ({
       _id: item._id,
+      productId: item._id,
       title: item.title,
       price: Number(item.price) || 0,
-      image: item.image,
+      image: item.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=85',
+      category: item.category || 'General',
+      selectedSize: item.selectedSize || 'Standard',
     }));
 
     const finalAddress = deliveryAddress || user.deliveryAddress || "Mom's Basement, Room 2B";
@@ -87,58 +91,45 @@ export async function POST(req: Request) {
       items: orderItems,
       totalAmount,
       deliveryAddress: finalAddress,
-      paymentCard: paymentCard || 'Infinite Black Card',
-      deliveryStatus: 'DELIVERED TO VAULT',
+      paymentCard: paymentCard || 'Infinite Black Card (•••• 4890)',
+      deliveryStatus: 'Order Verified & Processing',
     });
 
-    // 6. Update User document
+    // 5. Deduct Balance & Update Stats
     user.fakeBalance -= totalAmount;
-    user.cart = []; // Empty DB cart
+    user.cart = [];
     user.totalSpent = (user.totalSpent || 0) + totalAmount;
     user.ordersCount = (user.ordersCount || 0) + 1;
 
-    if (!user.unlockedBadges) {
-      user.unlockedBadges = [];
-    }
-
     await user.save();
 
-    // 7. Evaluate Achievement Badges safely
-    let newBadges: any[] = [];
-    try {
-      newBadges = await evaluateAndGrantBadges(user._id.toString());
-    } catch (badgeErr) {
-      console.warn('Badge evaluation error:', badgeErr);
-    }
+    // 6. Badges & Email Receipt
+    try { await evaluateAndGrantBadges(user._id.toString()); } catch (e) {}
 
-  // Inside your checkout API route:
-try {
-  if (user.email) {
-    await transporter.sendMail({
-      from: `"DopaCart Vault" <${process.env.GMAIL_USER}>`,
-      to: user.email, // <--- Sends to ANY user email address!
-      subject: `✨ Acquisition Dossier #${order._id.toString().substring(0, 8).toUpperCase()} Confirmed`,
-      html: getReceiptEmailHtml({
-        userName: user.name || 'High Roller',
-        orderId: order._id.toString(),
-        items: orderItems,
-        totalAmount,
-        deliveryAddress: finalAddress,
-      }),
-    });
-  }
-} catch (emailErr) {
-  console.warn('Gmail sending failed:', emailErr);
-}
+    try {
+      if (user.email) {
+        await transporter.sendMail({
+          from: `"DopaCart Vault" <${process.env.GMAIL_USER}>`,
+          to: user.email,
+          subject: `✨ Acquisition Dossier #${order._id.toString().substring(0, 8).toUpperCase()} Confirmed`,
+          html: getReceiptEmailHtml({
+            userName: user.name || 'High Roller',
+            orderId: order._id.toString(),
+            items: orderItems,
+            totalAmount,
+            deliveryAddress: finalAddress,
+          }),
+        });
+      }
+    } catch (e) {}
 
     return NextResponse.json({
       success: true,
       orderId: order._id,
       newBalance: user.fakeBalance,
-      newBadges,
     });
   } catch (err: any) {
-    console.error('Checkout API error:', err);
+    console.error('Checkout error:', err);
     return NextResponse.json({ error: err.message || 'Checkout failed' }, { status: 500 });
   }
 }

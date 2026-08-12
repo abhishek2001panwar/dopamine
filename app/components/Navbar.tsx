@@ -46,10 +46,9 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Catalog', href: '/feed' },
-    { label: 'Wardrobe', href: '/closet' },
+    // { label: 'Wardrobe', href: '/closet' },
     { label: 'Badges', href: '/badges' },
     { label: 'Standings', href: '/leaderboard' },
-    { label: 'Profile', href: '/profile' },
   ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -90,46 +89,47 @@ export function Navbar() {
 
   return (
     <>
-      {/* SINGLE STICKY WRAPPER PINNED TO VERY TOP */}
-      <div className="sticky top-0 z-50 w-full font-sans-modern">
+      {/* FIXED TOP NAVBAR PINNED TO VERY TOP OF VIEWPORT */}
+      <div className="fixed top-0 left-0 right-0 z-50 w-full font-sans-modern">
         {/* Top Utility Announcement Bar */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#1C1712] via-[#2A231B] to-[#1C1712] text-[#F8F3EB] py-2.5 px-4 border-b border-[#C8A24F]/20 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em]">
-  {/* Soft Ambient Gold Glows */}
-  <div className="absolute -left-10 -top-10 w-28 h-28 bg-[#C8A24F]/15 rounded-full blur-xl pointer-events-none" />
-  <div className="absolute -right-10 -bottom-10 w-28 h-28 bg-[#C8A24F]/15 rounded-full blur-xl pointer-events-none" />
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#1C1712] via-[#2A231B] to-[#1C1712] text-[#F8F3EB] py-2 px-4 border-b border-[#C8A24F]/20 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em]">
+          {/* Soft Ambient Gold Glows */}
+          <div className="absolute -left-10 -top-10 w-28 h-28 bg-[#C8A24F]/15 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute -right-10 -bottom-10 w-28 h-28 bg-[#C8A24F]/15 rounded-full blur-xl pointer-events-none" />
 
-  <div className="max-w-7xl mx-auto flex items-center justify-center gap-2.5 sm:gap-4 relative z-10 text-center">
-    {/* Left Icon Pill */}
-    <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C8A24F]/10 border border-[#C8A24F]/30 text-[#C8A24F] text-[9px] font-bold">
-      <Sparkles className="w-3 h-3 animate-pulse" />
-      <span>DAILY GRANT</span>
-    </div>
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2.5 sm:gap-4 relative z-10 text-center">
+            {/* Left Icon Pill */}
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C8A24F]/10 border border-[#C8A24F]/30 text-[#C8A24F] text-[9px] font-bold">
+              <Sparkles className="w-3 h-3 animate-pulse" />
+              <span>DAILY GRANT</span>
+            </div>
 
-    {/* Center Text with Gold Shimmer */}
-    <p className="m-0 truncate flex items-center gap-2 font-medium">
-      <span className="sm:hidden text-[#C8A24F]">✨</span>
-      <span>Refill Daily</span>
-      <span className="text-[#C8A24F]/60">•</span>
-      <span className="text-[#C8A24F] font-semibold bg-gradient-to-r from-[#FAF7F2] via-[#C8A24F] to-[#FAF7F2] bg-clip-text text-transparent animate-shimmer">
-        Zero Real Dollars
-      </span>
-      <span className="text-[#C8A24F]/60">•</span>
-      <span>Unlimited Impulse Shopping</span>
-    </p>
+            {/* Center Text with Gold Shimmer */}
+            <p className="m-0 truncate flex items-center gap-2 font-medium">
+              <span className="sm:hidden text-[#C8A24F]">✨</span>
+              <span>Refill Daily</span>
+              <span className="text-[#C8A24F]/60">•</span>
+              <span className="text-[#C8A24F] font-semibold bg-gradient-to-r from-[#FAF7F2] via-[#C8A24F] to-[#FAF7F2] bg-clip-text text-transparent animate-shimmer">
+                Zero Real Dollars
+              </span>
+              <span className="text-[#C8A24F]/60">•</span>
+              <span>Unlimited Impulse Shopping</span>
+            </p>
 
-    {/* Right Status Indicator */}
-    <div className="hidden md:inline-flex items-center gap-1.5 text-[9px] text-[#75695C] font-semibold">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#C8A24F] animate-ping" />
-      <span>VAULT ACTIVE</span>
-    </div>
-  </div>
-</div>
-        {/* Flush Top Glass Navbar */}
+            {/* Right Status Indicator */}
+            <div className="hidden md:inline-flex items-center gap-1.5 text-[9px] text-[#75695C] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C8A24F] animate-ping" />
+              <span>VAULT ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Flush Top Glass Navbar Header */}
         <header
-          className={`w-full transition-all duration-300 bg-[#FAF7F2]/90 backdrop-blur-2xl border-b border-[#EAE2D5] ${
+          className={`w-full transition-all duration-300 bg-[#FAF7F2]/80 backdrop-blur-xl border-b border-[#EAE2D5] ${
             isScrolled
-              ? 'shadow-[0_15px_35px_rgba(28,23,18,0.06)] py-3 sm:py-3.5'
-              : 'py-3.5 sm:py-5'
+              ? 'shadow-[0_15px_35px_rgba(28,23,18,0.08)] py-2.5 sm:py-3.5 bg-[#FAF7F2]/95'
+              : 'py-3 sm:py-4'
           }`}
         >
           <div className="max-w-8xl mx-auto px-4 sm:px-8 md:px-12 w-full flex items-center justify-between gap-4 sm:gap-6">
@@ -317,6 +317,9 @@ export function Navbar() {
           )}
         </header>
       </div>
+
+      {/* INVISIBLE SPACER: Prevents page content from hiding under the fixed header */}
+      <div className="pt-[105px] sm:pt-[118px]" />
 
       {/* Global Slide-Over Quick Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
