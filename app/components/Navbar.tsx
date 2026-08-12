@@ -12,9 +12,11 @@ import {
   Flame, 
   Menu, 
   X,
-  LogOut
+  LogOut,
+  Gamepad2
 } from 'lucide-react';
 import { CartDrawer } from './CartDrawer';
+import { EarnArcadeModal } from './EarnArcadeModal';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -25,6 +27,7 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showArcadeModal, setShowArcadeModal] = useState(false);
 
   // App Store State
   const { fakeBalance, streakCount, cart, resetUser } = useAppStore();
@@ -46,7 +49,7 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Catalog', href: '/feed' },
-    // { label: 'Wardrobe', href: '/closet' },
+    { label: 'Earn Capital', isAction: true, onClick: () => setShowArcadeModal(true) },
     { label: 'Badges', href: '/badges' },
     { label: 'Standings', href: '/leaderboard' },
   ];
@@ -151,12 +154,25 @@ export function Navbar() {
 
             {/* Desktop Editorial Navigation Links */}
             <nav className="hidden lg:flex items-center gap-8 xl:gap-10 font-mono text-xs uppercase tracking-[0.2em] font-semibold text-[#75695C]">
-              {navLinks.map((link) => {
+              {navLinks.map((link, idx) => {
+                if (link.isAction) {
+                  return (
+                    <button
+                      key={idx}
+                      onClick={link.onClick}
+                      className="text-[#9B7A2B] hover:text-[#1C1712] transition-colors font-bold uppercase cursor-pointer flex items-center gap-1"
+                    >
+                      <span>{link.label}</span>
+                      <Gamepad2 className="w-3.5 h-3.5 text-[#C8A24F]" />
+                    </button>
+                  );
+                }
+
                 const isActive = pathname === link.href;
                 return (
                   <Link
                     key={link.href}
-                    href={link.href}
+                    href={link.href!}
                     className={`transition-colors relative py-1 ${
                       isActive ? 'text-[#1C1712] font-bold' : 'hover:text-[#1C1712]'
                     }`}
@@ -181,6 +197,16 @@ export function Navbar() {
                 </span>
               </div>
 
+              {/* Arcade Capital Generator Trigger Button */}
+              <button
+                onClick={() => setShowArcadeModal(true)}
+                className="hidden xs:flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-[#1C1712] hover:bg-[#B38C3B] text-[#C8A24F] hover:text-white font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm active:scale-95 shrink-0"
+                title="Play Arcade Games to Earn Card Capital"
+              >
+                <Gamepad2 className="w-3.5 h-3.5 text-[#C8A24F]" />
+                <span className="hidden sm:inline">Earn Capital</span>
+              </button>
+
               {/* Login Streak Indicator */}
               <div
                 className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF7F2] border border-[#EAE2D5] text-[#1C1712] text-xs font-bold"
@@ -190,7 +216,7 @@ export function Navbar() {
                 <span className="text-[#1C1712]">{streakCount || 0}D</span>
               </div>
 
-              {/* Glass Icon: Search (HIDDEN ON ULTRA-SMALL SCREENS, ACCESSIBLE IN MOBILE MENU) */}
+              {/* Glass Icon: Search */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
                 className="hidden xs:flex p-1.5 xs:p-2 sm:p-2.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] hover:border-[#C8A24F] hover:text-[#C8A24F] hover:shadow-[0_4px_15px_rgba(200,162,79,0.2)] transition-all duration-300 shadow-sm items-center justify-center active:scale-95 shrink-0"
@@ -263,7 +289,18 @@ export function Navbar() {
           {/* Mobile Navigation Drawer */}
           {mobileMenuOpen && (
             <div className="lg:hidden max-w-7xl mx-auto px-4 xs:px-6 mt-3 pt-3 border-t border-[#EAE2D5] space-y-3.5 animate-fadeIn">
-              
+              {/* Mobile Arcade Banner Button */}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowArcadeModal(true);
+                }}
+                className="w-full py-2.5 bg-[#1C1712] text-[#C8A24F] font-mono text-xs font-bold uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 shadow-sm border border-[#C8A24F]/30"
+              >
+                <Gamepad2 className="w-4 h-4" />
+                <span>Earn Capital (Play Arcade)</span>
+              </button>
+
               {/* Mobile Search Bar Integrated Directly in Drawer */}
               <form onSubmit={handleSearchSubmit} className="relative">
                 <Search className="w-3.5 h-3.5 text-[#75695C] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -290,19 +327,37 @@ export function Navbar() {
               </div>
 
               <nav className="flex flex-col space-y-1.5 font-mono text-xs uppercase tracking-widest">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`py-2 border-b border-[#EAE2D5]/40 flex justify-between items-center ${
-                      pathname === link.href ? 'text-[#C8A24F] font-bold' : 'text-[#1C1712]'
-                    }`}
-                  >
-                    <span>{link.label}</span>
-                    <span className="text-xs text-[#75695C]">→</span>
-                  </Link>
-                ))}
+                {navLinks.map((link, idx) => {
+                  if (link.isAction) {
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          link.onClick!();
+                        }}
+                        className="py-2 border-b border-[#EAE2D5]/40 flex justify-between items-center text-[#9B7A2B] font-bold w-full text-left"
+                      >
+                        <span>{link.label}</span>
+                        <Gamepad2 className="w-4 h-4 text-[#C8A24F]" />
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={idx}
+                      href={link.href!}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`py-2 border-b border-[#EAE2D5]/40 flex justify-between items-center ${
+                        pathname === link.href ? 'text-[#C8A24F] font-bold' : 'text-[#1C1712]'
+                      }`}
+                    >
+                      <span>{link.label}</span>
+                      <span className="text-xs text-[#75695C]">→</span>
+                    </Link>
+                  );
+                })}
 
                 <button
                   onClick={() => {
@@ -335,6 +390,11 @@ export function Navbar() {
 
       {/* Global Slide-Over Quick Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
+      {/* Earn Capital Arcade Mini-Games Modal */}
+      {showArcadeModal && (
+        <EarnArcadeModal onClose={() => setShowArcadeModal(false)} />
+      )}
     </>
   );
 }
