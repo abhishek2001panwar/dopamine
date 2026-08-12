@@ -54,6 +54,8 @@ export function Navbar() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setMobileMenuOpen(false);
+      setSearchOpen(false);
       window.location.href = `/feed?search=${encodeURIComponent(searchQuery)}`;
     }
   };
@@ -70,10 +72,7 @@ export function Navbar() {
       });
 
       if (res.ok) {
-        // Clear Zustand global user state if function exists
         if (resetUser) resetUser();
-
-        // Redirect to login page
         router.push('/login');
         router.refresh();
       } else {
@@ -92,12 +91,12 @@ export function Navbar() {
       {/* FIXED TOP NAVBAR PINNED TO VERY TOP OF VIEWPORT */}
       <div className="fixed top-0 left-0 right-0 z-50 w-full font-sans-modern">
         {/* Top Utility Announcement Bar */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-[#1C1712] via-[#2A231B] to-[#1C1712] text-[#F8F3EB] py-2 px-4 border-b border-[#C8A24F]/20 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em]">
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#1C1712] via-[#2A231B] to-[#1C1712] text-[#F8F3EB] py-1.5 xs:py-2 px-2.5 xs:px-4 border-b border-[#C8A24F]/20 text-[9px] xs:text-[10px] sm:text-xs font-mono uppercase tracking-[0.15em] sm:tracking-[0.2em]">
           {/* Soft Ambient Gold Glows */}
           <div className="absolute -left-10 -top-10 w-28 h-28 bg-[#C8A24F]/15 rounded-full blur-xl pointer-events-none" />
           <div className="absolute -right-10 -bottom-10 w-28 h-28 bg-[#C8A24F]/15 rounded-full blur-xl pointer-events-none" />
 
-          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2.5 sm:gap-4 relative z-10 text-center">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-4 relative z-10 text-center">
             {/* Left Icon Pill */}
             <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C8A24F]/10 border border-[#C8A24F]/30 text-[#C8A24F] text-[9px] font-bold">
               <Sparkles className="w-3 h-3 animate-pulse" />
@@ -105,15 +104,15 @@ export function Navbar() {
             </div>
 
             {/* Center Text with Gold Shimmer */}
-            <p className="m-0 truncate flex items-center gap-2 font-medium">
+            <p className="m-0 truncate flex items-center gap-1.5 sm:gap-2 font-medium">
               <span className="sm:hidden text-[#C8A24F]">✨</span>
               <span>Refill Daily</span>
               <span className="text-[#C8A24F]/60">•</span>
               <span className="text-[#C8A24F] font-semibold bg-gradient-to-r from-[#FAF7F2] via-[#C8A24F] to-[#FAF7F2] bg-clip-text text-transparent animate-shimmer">
                 Zero Real Dollars
               </span>
-              <span className="text-[#C8A24F]/60">•</span>
-              <span>Unlimited Impulse Shopping</span>
+              <span className="hidden xs:inline text-[#C8A24F]/60">•</span>
+              <span className="hidden xs:inline">Unlimited Impulse Shopping</span>
             </p>
 
             {/* Right Status Indicator */}
@@ -128,25 +127,25 @@ export function Navbar() {
         <header
           className={`w-full transition-all duration-300 bg-[#FAF7F2]/80 backdrop-blur-xl border-b border-[#EAE2D5] ${
             isScrolled
-              ? 'shadow-[0_15px_35px_rgba(28,23,18,0.08)] py-2.5 sm:py-3.5 bg-[#FAF7F2]/95'
-              : 'py-3 sm:py-4'
+              ? 'shadow-[0_15px_35px_rgba(28,23,18,0.08)] py-2 sm:py-3.5 bg-[#FAF7F2]/95'
+              : 'py-2.5 sm:py-4'
           }`}
         >
-          <div className="max-w-8xl mx-auto px-4 sm:px-8 md:px-12 w-full flex items-center justify-between gap-4 sm:gap-6">
+          <div className="max-w-8xl mx-auto px-2.5 xs:px-4 sm:px-8 md:px-12 w-full flex items-center justify-between gap-2 xs:gap-4 sm:gap-6">
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-[#1C1712] hover:text-[#C8A24F] transition-colors focus:outline-none"
+              className="lg:hidden p-1.5 xs:p-2 text-[#1C1712] hover:text-[#C8A24F] transition-colors focus:outline-none shrink-0"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
             {/* Luxury Brand Logo */}
-            <Link href="/" className="flex items-center gap-2 group shrink-0">
-              <h1 className="font-serif-luxury font-black text-2xl sm:text-3xl tracking-tight text-[#1C1712]">
+            <Link href="/" className="flex items-center gap-1.5 xs:gap-2 group shrink-0">
+              <h1 className="font-serif-luxury font-black text-xl xs:text-2xl sm:text-3xl tracking-tight text-[#1C1712] m-0">
                 Dopa<span className="text-[#C8A24F] italic">Cart</span>
-                <span className="text-[9px] font-sans text-[#9B7A2B] align-top ml-0.5 font-bold">®</span>
+                <span className="text-[8px] xs:text-[9px] font-sans text-[#9B7A2B] align-top ml-0.5 font-bold">®</span>
               </h1>
             </Link>
 
@@ -172,7 +171,7 @@ export function Navbar() {
             </nav>
 
             {/* Right Action Utilities & Icons */}
-            <div className="flex items-center gap-2 sm:gap-3 font-mono">
+            <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 font-mono">
               {/* Virtual Grant Balance Pill */}
               <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] text-xs font-bold shadow-sm backdrop-blur-md">
                 <span className="w-2 h-2 rounded-full bg-[#C8A24F] animate-pulse" />
@@ -191,10 +190,10 @@ export function Navbar() {
                 <span className="text-[#1C1712]">{streakCount || 0}D</span>
               </div>
 
-              {/* Glass Icon: Search */}
+              {/* Glass Icon: Search (HIDDEN ON ULTRA-SMALL SCREENS, ACCESSIBLE IN MOBILE MENU) */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 sm:p-2.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] hover:border-[#C8A24F] hover:text-[#C8A24F] hover:shadow-[0_4px_15px_rgba(200,162,79,0.2)] transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95"
+                className="hidden xs:flex p-1.5 xs:p-2 sm:p-2.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] hover:border-[#C8A24F] hover:text-[#C8A24F] hover:shadow-[0_4px_15px_rgba(200,162,79,0.2)] transition-all duration-300 shadow-sm items-center justify-center active:scale-95 shrink-0"
                 aria-label="Search Products"
               >
                 <Search className="w-4 h-4" />
@@ -203,12 +202,12 @@ export function Navbar() {
               {/* Glass Icon: Slide-Over Cart Drawer Trigger */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 sm:p-2.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] hover:border-[#C8A24F] hover:text-[#C8A24F] hover:shadow-[0_4px_15px_rgba(200,162,79,0.2)] transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95"
+                className="relative p-1.5 xs:p-2 sm:p-2.5 rounded-full bg-white/90 border border-[#EAE2D5] text-[#1C1712] hover:border-[#C8A24F] hover:text-[#C8A24F] hover:shadow-[0_4px_15px_rgba(200,162,79,0.2)] transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95 shrink-0"
                 aria-label="View Quick Cart Drawer"
               >
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingBag className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C8A24F] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-md border border-white">
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 xs:w-4 xs:h-4 bg-[#C8A24F] text-white text-[8px] xs:text-[9px] font-bold rounded-full flex items-center justify-center shadow-md border border-white">
                     {cartItemCount}
                   </span>
                 )}
@@ -217,11 +216,11 @@ export function Navbar() {
               {/* Glass Icon: User Profile */}
               <Link
                 href="/profile"
-                className="p-2 sm:p-2.5 rounded-full bg-[#1C1712] text-white hover:bg-[#B38C3B] hover:shadow-[0_4px_15px_rgba(200,162,79,0.3)] transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95"
+                className="p-1.5 xs:p-2 sm:p-2.5 rounded-full bg-[#1C1712] text-white hover:bg-[#B38C3B] hover:shadow-[0_4px_15px_rgba(200,162,79,0.3)] transition-all duration-300 shadow-sm flex items-center justify-center active:scale-95 shrink-0"
                 aria-label="Account Profile"
                 title="Profile / Sign In"
               >
-                <User className="w-4 h-4" />
+                <User className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
               </Link>
 
               {/* Desktop Logout Button */}
@@ -237,9 +236,9 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Search Dropdown Drawer */}
+          {/* Desktop/Tablet Search Dropdown Drawer */}
           {searchOpen && (
-            <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 mt-3 pt-3 border-t border-[#EAE2D5] animate-fadeIn">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-[#EAE2D5] animate-fadeIn">
               <form onSubmit={handleSearchSubmit} className="flex items-center gap-3">
                 <Search className="w-4 h-4 text-[#75695C] shrink-0" />
                 <input
@@ -263,21 +262,34 @@ export function Navbar() {
 
           {/* Mobile Navigation Drawer */}
           {mobileMenuOpen && (
-            <div className="lg:hidden max-w-7xl mx-auto px-6 mt-4 pt-4 border-t border-[#EAE2D5] space-y-4 animate-fadeIn">
+            <div className="lg:hidden max-w-7xl mx-auto px-4 xs:px-6 mt-3 pt-3 border-t border-[#EAE2D5] space-y-3.5 animate-fadeIn">
+              
+              {/* Mobile Search Bar Integrated Directly in Drawer */}
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <Search className="w-3.5 h-3.5 text-[#75695C] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-8 pr-3 py-2 bg-white border border-[#EAE2D5] rounded-full font-mono text-xs text-[#1C1712] placeholder:text-[#75695C] focus:outline-none focus:border-[#C8A24F]"
+                />
+              </form>
+
               <div className="flex justify-between items-center pb-2 border-b border-[#EAE2D5]/60">
                 <div className="space-y-0.5">
                   <span className="text-[9px] font-mono uppercase tracking-widest text-[#75695C]">Balance</span>
-                  <p className="font-serif-luxury font-bold text-base text-[#9B7A2B]">
+                  <p className="font-serif-luxury font-bold text-sm xs:text-base text-[#9B7A2B] m-0">
                     ${(fakeBalance || 0).toLocaleString()}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#EAE2D5] text-xs font-mono font-bold text-[#1C1712]">
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 xs:px-3 xs:py-1 rounded-full bg-white border border-[#EAE2D5] text-[11px] xs:text-xs font-mono font-bold text-[#1C1712]">
                   <Flame className="w-3.5 h-3.5 text-[#C8A24F]" />
                   <span>{streakCount || 0}D Streak</span>
                 </div>
               </div>
 
-              <nav className="flex flex-col space-y-2 font-mono text-xs uppercase tracking-widest">
+              <nav className="flex flex-col space-y-1.5 font-mono text-xs uppercase tracking-widest">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -307,7 +319,7 @@ export function Navbar() {
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="py-3 mt-2 flex justify-between items-center text-red-600 font-bold w-full text-left bg-red-50/60 rounded-xl px-4 border border-red-100 active:scale-98 transition-all disabled:opacity-50"
+                  className="py-2.5 mt-2 flex justify-between items-center text-red-600 font-bold w-full text-left bg-red-50/60 rounded-xl px-3.5 border border-red-100 active:scale-98 transition-all disabled:opacity-50"
                 >
                   <span>{isLoggingOut ? 'Terminating Session...' : 'Log Out Vault'}</span>
                   <LogOut className="w-4 h-4" />
@@ -319,7 +331,7 @@ export function Navbar() {
       </div>
 
       {/* INVISIBLE SPACER: Prevents page content from hiding under the fixed header */}
-      <div className="pt-[105px] sm:pt-[118px]" />
+      <div className="pt-[95px] xs:pt-[105px] sm:pt-[118px]" />
 
       {/* Global Slide-Over Quick Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
