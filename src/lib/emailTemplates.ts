@@ -4,7 +4,7 @@ export function getReceiptEmailHtml({
   items,
   totalAmount,
   deliveryAddress,
-  appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://dopamine-ochre.vercel.app/',
 }: {
   userName: string;
   orderId: string;
