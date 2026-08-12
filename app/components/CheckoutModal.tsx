@@ -16,6 +16,9 @@ import { useAppStore } from '@/src/lib/store';
 
 interface CheckoutModalProps {
   totalAmount: number;
+  savedAddress?: string;
+  userId?: string;
+  userName?: string;
   onConfirm: (checkoutData: { address: string; cardName: string; cardNumber: string; otp: string }) => Promise<void>;
   onClose: () => void;
 }
