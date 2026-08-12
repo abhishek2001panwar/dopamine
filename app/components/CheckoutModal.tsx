@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   X, 
   CreditCard, 
@@ -10,7 +11,9 @@ import {
   Loader2, 
   KeyRound,
   MapPin,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  HelpCircle
 } from 'lucide-react';
 import { useAppStore } from '@/src/lib/store';
 
@@ -55,9 +58,9 @@ const getCardDetailsForEmail = (email: string) => {
   };
 };
 
-export function CheckoutModal({ totalAmount, onConfirm, onClose }: CheckoutModalProps) {
+export function CheckoutModal({ totalAmount, savedAddress, onConfirm, onClose }: CheckoutModalProps) {
   const [step, setStep] = useState<'CARD_FORM' | 'OTP_VERIFICATION'>('CARD_FORM');
-  const [address, setAddress] = useState("Mom's Basement, Room 2B");
+  const [address, setAddress] = useState(savedAddress || "Mom's Basement, Room 2B");
   const [expDateInput, setExpDateInput] = useState('');
   const [cvvInput, setCvvInput] = useState('');
   const [otpInput, setOtpInput] = useState('');
@@ -76,6 +79,9 @@ export function CheckoutModal({ totalAmount, onConfirm, onClose }: CheckoutModal
         if (data?.user) {
           setUserEmail(data.user.email || '');
           setUserName(data.user.name || 'High Roller');
+          if (data.user.deliveryAddress) {
+            setAddress(data.user.deliveryAddress);
+          }
         }
       })
       .catch((e) => console.error('Failed to load profile:', e));
@@ -101,7 +107,7 @@ export function CheckoutModal({ totalAmount, onConfirm, onClose }: CheckoutModal
     // 2. Strict EXP & CVV matching check
     if (cleanExpInput !== actualCard.exp || cleanCvvInput !== actualCard.cvv) {
       setErrorMessage(
-        `Invalid Security Credentials! EXP (${cleanExpInput || 'empty'}) or CVV (${cleanCvvInput || 'empty'}) does not match your assigned Infinite Black Card.`
+        `Invalid Security Credentials! Check your /profile page card to verify your EXP & CVV.`
       );
       return;
     }
@@ -165,7 +171,7 @@ export function CheckoutModal({ totalAmount, onConfirm, onClose }: CheckoutModal
 
   return (
     <div className="fixed inset-0 z-50 bg-[#1C1712]/70 backdrop-blur-md flex items-center justify-center p-4 font-sans selection:bg-[#C8A24F] selection:text-white">
-      <div className="bg-[#FAF7F2] border border-white/90 p-6 sm:p-8 max-w-md w-full space-y-6 rounded-[36px] shadow-2xl relative overflow-hidden animate-fadeIn">
+      <div className="bg-[#FAF7F2] border border-white/90 p-6 sm:p-8 max-w-md w-full space-y-5 sm:space-y-6 rounded-[36px] shadow-2xl relative overflow-hidden animate-fadeIn">
         <button
           onClick={onClose}
           className="absolute top-5 right-5 p-2 text-[#75695C] hover:text-[#1C1712] rounded-full transition-colors"
@@ -245,8 +251,24 @@ export function CheckoutModal({ totalAmount, onConfirm, onClose }: CheckoutModal
               </div>
             </div>
 
+            {/* PROFILE CARD HELPER BANNER */}
+            <div className="bg-[#FAF7F2] border border-[#EAE2D5] p-3 rounded-2xl flex items-center justify-between gap-2 text-[11px] font-mono shadow-sm">
+              <div className="flex items-center gap-2 text-[#75695C]">
+                <HelpCircle className="w-4 h-4 text-[#C8A24F] shrink-0" />
+                <span>Don't know your EXP or CVV?</span>
+              </div>
+              <Link
+                href="/profile"
+                target="_blank"
+                className="text-[#9B7A2B] hover:text-[#1C1712] font-bold uppercase tracking-wider flex items-center gap-1 shrink-0 underline decoration-[#C8A24F]"
+              >
+                <span>View Card</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+
             {/* Total Required */}
-            <div className="flex justify-between items-center font-mono text-xs border-t border-[#EAE2D5] pt-3">
+            <div className="flex justify-between items-center font-mono text-xs border-t border-[#EAE2D5] pt-2">
               <span className="text-[#75695C] uppercase font-bold">Total Capital Required:</span>
               <span className="text-xl font-bold text-[#9B7A2B]">${totalAmount.toLocaleString()}</span>
             </div>
